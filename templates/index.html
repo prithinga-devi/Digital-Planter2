@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digital Planter - Share & Track Your Plants</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <style>
+        :root {
+            --primary-color: #00b894;
+            --primary-hover: #00a884;
+            --secondary-color: #0984e3;
+            --accent-color: #fdcb6e;
+            --danger-color: #ff7675;
+            --text-dark: #2d3436;
+            --text-light: #636e72;
+            --bg-gradient: linear-gradient(135deg, #a8e6cf 0%, #dcedc1 100%);
+            --glass-bg: rgba(255, 255, 255, 0.95);
+            --shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: var(--bg-gradient);
+            color: var(--text-dark);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Floating background decorations */
+        .floating-leaf {
+            position: fixed;
+            font-size: 2.5rem;
+            opacity: 0.12;
+            pointer-events: none;
+            z-index: 0;
+            animation: float 20s ease-in-out infinite;
+        }
+
+        .leaf-1 {
+            top: 10%;
+            left: 10%;
+            animation-delay: 0s;
+        }
+
+        .leaf-2 {
+            top: 20%;
+            right: 15%;
+            animation-delay: 3s;
+            font-size: 3rem;
+        }
+
+        .leaf-3 {
+            bottom: 15%;
+            left: 20%;
+            animation-delay: 6s;
+        }
+
+        .leaf-4 {
+            bottom: 25%;
+            right: 10%;
+            animation-delay: 9s;
+            font-size: 2rem;
+        }
+
+        .leaf-5 {
+            top: 50%;
+            left: 5%;
+            animation-delay: 12s;
+            font-size: 2.8rem;
+        }
+
+        .leaf-6 {
+            top: 60%;
+            right: 8%;
+            animation-delay: 15s;
+        }
+
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translateY(0) rotate(0deg);
+            }
+
+            25% {
+                transform: translateY(-25px) rotate(8deg);
+            }
+
+            50% {
+                transform: translateY(-15px) rotate(-5deg);
+            }
+
+            75% {
+                transform: translateY(-35px) rotate(5deg);
+            }
+        }
+
+        .container {
+            background: var(--glass-bg);
+            padding: 2.5rem;
+            border-radius: 24px;
+            box-shadow: var(--shadow);
+            text-align: center;
+            max-width: 750px;
+            width: 90%;
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            z-index: 1;
+            animation: fadeInUp 0.8s ease-out;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(40px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .container:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 16px 56px 0 rgba(31, 38, 135, 0.25);
+        }
+
+        h1 {
+            color: var(--text-dark);
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            font-size: 2.8rem;
+            background: -webkit-linear-gradient(45deg, #00b894, #0984e3);
+            background: linear-gradient(45deg, #00b894, #0984e3);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: fadeIn 1s ease-out 0.3s both;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        p {
+            color: var(--text-light);
+            font-size: 1.1rem;
+            margin-bottom: 2rem;
+            animation: fadeIn 1s ease-out 0.5s both;
+        }
+
+        button,
+        .btn {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 13px 26px;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 14px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 12px rgba(0, 184, 148, 0.25);
+            position: relative;
+            overflow: hidden;
+        }
+
+        button:hover,
+        .btn:hover {
+            background: var(--primary-hover);
+            transform: translateY(-4px) scale(1.05);
+            box-shadow: 0 10px 28px rgba(0, 184, 148, 0.45);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: var(--primary-color);
+            border: 2px solid var(--primary-color);
+            box-shadow: 0 4px 12px rgba(0, 184, 148, 0.1);
+        }
+
+        .btn-secondary:hover {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        #status {
+            margin-top: 1.5rem;
+            font-size: 1.05rem;
+            min-height: 1.5em;
+            font-weight: 500;
+            padding: 12px 16px;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .success {
+            color: #00b894;
+            background: rgba(0, 184, 148, 0.12);
+            border-left: 4px solid #00b894;
+        }
+
+        .error {
+            color: #ff7675;
+            background: rgba(255, 118, 117, 0.12);
+            border-left: 4px solid #ff7675;
+        }
+
+        .info {
+            color: #0984e3;
+            background: rgba(9, 132, 227, 0.12);
+            border-left: 4px solid #0984e3;
+        }
+
+        #map {
+            height: 400px;
+            width: 100%;
+            border-radius: 18px;
+            margin: 1.5rem 0;
+            box-shadow: inset 0 0 25px rgba(0, 0, 0, 0.06);
+            border: 2px solid rgba(255, 255, 255, 0.6);
+        }
+
+        /* Photo upload area */
+        .photo-upload {
+            margin: 1rem 0;
+            padding: 1.5rem;
+            border: 2px dashed #dfe6e9;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .photo-upload:hover {
+            border-color: var(--primary-color);
+            background: rgba(0, 184, 148, 0.05);
+        }
+
+        .photo-preview {
+            max-width: 200px;
+            max-height: 200px;
+            border-radius: 12px;
+            margin-top: 1rem;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            animation: fadeIn 0.3s;
+        }
+
+        .modal-content {
+            background: white;
+            margin: 5% auto;
+            padding: 2rem;
+            border-radius: 20px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            animation: slideInModal 0.3s;
+        }
+
+        @keyframes slideInModal {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .close-modal {
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            color: #999;
+        }
+
+        .close-modal:hover {
+            color: #333;
+        }
+
+        .template-selector {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 1.5rem;
+        }
+
+        .template-btn {
+            padding: 8px 16px;
+            border-radius: 20px;
+            border: 2px solid #dfe6e9;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .template-btn.active {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
+        .post-preview {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 12px;
+            white-space: pre-wrap;
+            text-align: left;
+            margin: 1rem 0;
+            font-family: monospace;
+        }
+
+        .copy-btn {
+            width: 100%;
+            margin-top: 1rem;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .location-info {
+            background: rgba(9, 132, 227, 0.1);
+            padding: 1rem;
+            border-radius: 10px;
+            margin: 1rem 0;
+            text-align: left;
+        }
+
+        .search-box {
+            display: flex;
+            gap: 10px;
+            margin: 1rem 0;
+            align-items: center;
+        }
+
+        .search-box input[type="text"] {
+            flex: 1;
+            margin: 0;
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 16px;
+            font-size: 1.05rem;
+            border: 2px solid #dfe6e9;
+            border-radius: 14px;
+            margin-bottom: 1.5rem;
+            font-family: 'Outfit', sans-serif;
+            background: #fafbfc;
+            transition: all 0.3s;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 5px rgba(0, 184, 148, 0.12);
+            transform: scale(1.02);
+            background: white;
+        }
+
+        .radio-group {
+            display: flex;
+            gap: 2rem;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .radio-label {
+            cursor: pointer;
+            font-size: 1.15rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 24px;
+            border-radius: 50px;
+            background: #f1f2f6;
+            transition: all 0.3s;
+        }
+
+        .radio-label:hover {
+            background: var(--primary-color);
+            color: white;
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Floating leaf decorations -->
+    <div class="floating-leaf leaf-1">🌿</div>
+    <div class="floating-leaf leaf-2">🍃</div>
+    <div class="floating-leaf leaf-3">🌱</div>
+    <div class="floating-leaf leaf-4">🌿</div>
+    <div class="floating-leaf leaf-5">🍃</div>
+    <div class="floating-leaf leaf-6">🌱</div>
+
+    <div class="container">
+        <h1>Digital Planter 🌱</h1>
+        <p>Plant, share & track your green journey</p>
+
+        <div class="nav-buttons">
+            <button onclick="getMyLocation()">
+                <span>📍</span> My Location
+            </button>
+            <button onclick="toggleLiveTracking()" id="trackBtn">
+                <span>🛰️</span> Start Tracking
+            </button>
+            <a href="/locations" class="btn btn-secondary">
+                <span>📋</span> My Plants
+            </a>
+        </div>
+
+        <!-- Location Search -->
+        <div class="search-box">
+            <input type="text" id="searchLocation"
+                placeholder="🔍 Search any location (e.g., 'Eiffel Tower' or 'Times Square, NYC')"
+                onkeypress="if(event.key==='Enter') searchLocation()">
+            <button onclick="searchLocation()" style="padding: 16px 24px; white-space: nowrap;">
+                🔍 Search
+            </button>
+        </div>
+
+        <div id="locationInfo" class="location-info" style="display:none;"></div>
+        <div id="status"></div>
+        <div id="map"></div>
+
+        <div class="plant-section">
+            <h2>🌱 Plant Something New</h2>
+
+            <!-- Photo Upload -->
+            <div class="photo-upload" onclick="document.getElementById('photoInput').click()">
+                <p>📸 Click to add a photo (optional)</p>
+                <input type="file" id="photoInput" accept="image/*" onchange="previewPhoto(event)">
+                <img id="photoPreview" class="photo-preview" style="display:none;">
+            </div>
+
+            <input type="text" id="plantName" placeholder="Give your plant a name (e.g., 'Sunset Oak')">
+
+            <div class="radio-group">
+                <label class="radio-label">
+                    <input type="radio" name="plantType" value="tree" checked> 🌳 Tree
+                </label>
+                <label class="radio-label">
+                    <input type="radio" name="plantType" value="flower"> 🌸 Flower
+                </label>
+            </div>
+
+            <button onclick="submitPlant()" style="width: 100%; font-size: 1.15rem; padding: 16px;">
+                ✅ Plant It Here
+            </button>
+
+            <div id="plantSuccess"
+                style="display: none; margin-top: 1.5rem; padding: 1.8rem; background: linear-gradient(135deg, #e3f9e5 0%, #d4f4d8 100%); border-radius: 16px;">
+                <p style="margin: 0 0 1rem 0; color: #2b8a3e; font-weight: 700; font-size: 1.3rem;">🎉 Successfully
+                    planted!</p>
+                <button onclick="showShareModal()" class="btn" style="margin: 0.5rem;">
+                    📱 Share on Social Media
+                </button>
+                <a href="/locations" class="btn btn-secondary" style="margin: 0.5rem;">View My Garden ➔</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Social Sharing Modal -->
+    <div id="shareModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeShareModal()">&times;</span>
+            <h2>📱 Share Your Plant</h2>
+
+            <div class="template-selector">
+                <button class="template-btn active" onclick="selectTemplate('short')">Short</button>
+                <button class="template-btn" onclick="selectTemplate('inspirational')">Inspirational</button>
+                <button class="template-btn" onclick="selectTemplate('instagram')">Instagram</button>
+                <button class="template-btn" onclick="selectTemplate('whatsapp')">WhatsApp</button>
+                <button class="template-btn" onclick="selectTemplate('youtube')">YouTube</button>
+                <button class="template-btn" onclick="selectTemplate('professional')">Professional</button>
+                <button class="template-btn" onclick="selectTemplate('detailed')">Detailed</button>
+                <button class="template-btn" onclick="selectTemplate('twitter')">Twitter</button>
+            </div>
+
+            <div class="post-preview" id="postPreview">Loading...</div>
+
+            <button class="btn copy-btn" onclick="copyPost()">
+                📋 Copy to Clipboard
+            </button>
+        </div>
+    </div>
+
+    <script>
+        let map, selectedMarker, selectedLat, selectedLon;
+        let liveLocationMarker, watchId, isTracking = false;
+        let currentPlantId = null;
+        let socialPosts = {};
+
+        // Initialize map
+        function initMap(lat = 20.5937, lon = 78.9629, zoom = 5) {
+            map = L.map('map').setView([lat, lon], zoom);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap'
+            }).addTo(map);
+
+            map.on('click', function (e) {
+                selectedLat = e.latlng.lat;
+                selectedLon = e.latlng.lng;
+                if (selectedMarker) map.removeLayer(selectedMarker);
+                selectedMarker = L.marker([selectedLat, selectedLon]).addTo(map);
+                selectedMarker.bindPopup('📍 Selected location').openPopup();
+                showStatus('Location selected!', 'info');
+            });
+        }
+
+        // Search for a location
+        async function searchLocation() {
+            const query = document.getElementById('searchLocation').value.trim();
+            if (!query) {
+                showStatus('Please enter a location to search', 'error');
+                return;
+            }
+
+            showStatus('🔍 Searching...', 'info');
+
+            try {
+                const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&limit=1`;
+                const response = await fetch(url, {
+                    headers: { 'User-Agent': 'DigitalPlanterApp/1.0' }
+                });
+
+                const results = await response.json();
+
+                if (results && results.length > 0) {
+                    const result = results[0];
+                    const lat = parseFloat(result.lat);
+                    const lon = parseFloat(result.lon);
+
+                    map.setView([lat, lon], 15, { animate: true });
+
+                    if (selectedMarker) map.removeLayer(selectedMarker);
+                    selectedMarker = L.marker([lat, lon]).addTo(map);
+                    selectedMarker.bindPopup(`📍 ${result.display_name}`).openPopup();
+
+                    selectedLat = lat;
+                    selectedLon = lon;
+
+                    const info = document.getElementById('locationInfo');
+                    info.style.display = 'block';
+                    info.innerHTML = `
+                        <strong>🔍 Found:</strong><br>
+                        ${result.display_name}<br>
+                        📍 ${lat.toFixed(6)}, ${lon.toFixed(6)}
+                    `;
+
+                    showStatus(`✅ Found: ${result.display_name.split(',')[0]}`, 'success');
+                } else {
+                    showStatus('❌ Location not found. Try different keywords.', 'error');
+                }
+            } catch (error) {
+                showStatus('❌ Error searching', 'error');
+            }
+        }
+
+        // Get current location details
+        async function getMyLocation() {
+            navigator.geolocation.getCurrentPosition(async (position) => {
+                const response = await fetch('/my_location', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        lat: position.coords.latitude,
+                        lon: position.coords.longitude,
+                        accuracy: position.coords.accuracy
+                    })
+                });
+                const data = await response.json();
+
+                const info = document.getElementById('locationInfo');
+                info.style.display = 'block';
+                info.innerHTML = `
+                    <strong>📍 Your Current Location:</strong><br>
+                    ${data.address.full_address}<br>
+                    ${data.address.pin_code ? `📮 Pin Code: ${data.address.pin_code}<br>` : ''}
+                    🏞️ Landmarks: ${data.landmarks.join(', ')}<br>
+                    📊 Accuracy: ${position.coords.accuracy.toFixed(1)}m<br>
+                    <a href="${data.map_link}" target="_blank" style="color: var(--primary-color);">🗺️ View on Google Maps</a>
+                `;
+
+                map.setView([position.coords.latitude, position.coords.longitude], 15);
+            });
+        }
+
+        // Live tracking
+        async function toggleLiveTracking() {
+            if (isTracking) {
+                if (watchId) navigator.geolocation.clearWatch(watchId);
+                if (liveLocationMarker) map.removeLayer(liveLocationMarker);
+                isTracking = false;
+                document.getElementById('trackBtn').innerHTML = '<span>🛰️</span> Start Tracking';
+            } else {
+                watchId = navigator.geolocation.watchPosition(async (position) => {
+                    const lat = position.coords.latitude;
+                    const lon = position.coords.longitude;
+
+                    if (liveLocationMarker) {
+                        liveLocationMarker.setLatLng([lat, lon]);
+                    } else {
+                        liveLocationMarker = L.marker([lat, lon]).addTo(map);
+                    }
+                    map.setView([lat, lon], 15);
+
+                    const distResp = await fetch('/calculate_distances', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ lat, lon })
+                    });
+                    const distData = await distResp.json();
+
+                    if (distData.distances && distData.distances.length > 0) {
+                        const nearest = distData.distances[0];
+                        showStatus(`📍 ${nearest.alert_message}`, nearest.alert_level === 'arrived' ? 'success' : 'info');
+                    }
+                });
+                isTracking = true;
+                document.getElementById('trackBtn').innerHTML = '<span>🛑</span> Stop Tracking';
+            }
+        }
+
+        // Photo preview
+        function previewPhoto(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    const preview = document.getElementById('photoPreview');
+                    preview.src = e.target.result;
+                    preview.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        // Submit plant
+        async function submitPlant() {
+            const plantName = document.getElementById('plantName').value.trim();
+            const plantType = document.querySelector('input[name="plantType"]:checked').value;
+            const photoInput = document.getElementById('photoInput');
+
+            if (!plantName) {
+                showStatus('Please give your plant a name!', 'error');
+                return;
+            }
+            if (!selectedLat || !selectedLon) {
+                showStatus('Please click on the map to choose a spot!', 'error');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('name', plantName);
+            formData.append('lat', selectedLat);
+            formData.append('lon', selectedLon);
+            formData.append('type', plantType);
+            if (photoInput.files[0]) {
+                formData.append('photo', photoInput.files[0]);
+            }
+
+            showStatus('Planting...', 'info');
+
+            const response = await fetch('/plant_location', {
+                method: 'POST',
+                body: formData
+            });
+            const data = await response.json();
+
+            if (data.success) {
+                currentPlantId = data.plant_id;
+                document.getElementById('plantName').value = '';
+                document.getElementById('photoInput').value = '';
+                document.getElementById('photoPreview').style.display = 'none';
+                if (selectedMarker) map.removeLayer(selectedMarker);
+
+                showStatus(`✅ Planted at ${data.address || 'your location'}!`, 'success');
+                document.getElementById('plantSuccess').style.display = 'block';
+            } else {
+                showStatus(data.error || 'Error planting', 'error');
+            }
+        }
+
+        // Share modal
+        async function showShareModal() {
+            if (!currentPlantId) return;
+
+            const response = await fetch('/generate_social_post', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ plant_id: currentPlantId })
+            });
+            const data = await response.json();
+
+            if (data.success) {
+                socialPosts = data.posts.templates;
+                selectTemplate('short');
+                document.getElementById('shareModal').style.display = 'block';
+            }
+        }
+
+        function closeShareModal() {
+            document.getElementById('shareModal').style.display = 'none';
+        }
+
+        function selectTemplate(name) {
+            document.querySelectorAll('.template-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            document.getElementById('postPreview').textContent = socialPosts[name] || 'Template not found';
+        }
+
+        function copyPost() {
+            const text = document.getElementById('postPreview').textContent;
+            navigator.clipboard.writeText(text);
+            showStatus('📋 Copied to clipboard!', 'success');
+        }
+
+        function showStatus(message, type) {
+            const status = document.getElementById('status');
+            status.textContent = message;
+            status.className = type;
+        }
+
+        // Initialize
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                (position) => initMap(position.coords.latitude, position.coords.longitude, 13),
+                () => initMap()
+            );
+        } else {
+            initMap();
+        }
+    </script>
+</body>
+
+</html>

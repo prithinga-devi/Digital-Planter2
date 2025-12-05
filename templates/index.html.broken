@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digital Planter</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <style>
+        :root {
+            --primary-color: #00b894;
+            --primary-hover: #00a884;
+            --secondary-color: #0984e3;
+            --accent-color: #fdcb6e;
+            --danger-color: #ff7675;
+            --text-dark: #2d3436;
+            --text-light: #636e72;
+            --bg-gradient: linear-gradient(135deg, #a8e6cf 0%, #dcedc1 100%);
+            --glass-bg: rgba(255, 255, 255, 0.95);
+            --shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: var(--bg-gradient);
+            color: var(--text-dark);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 12px 24px;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 12px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 6px rgba(0, 184, 148, 0.2);
+        }
+
+        button:hover,
+        .btn:hover {
+            background: var(--primary-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 184, 148, 0.3);
+        }
+
+        button:active,
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        button.active {
+            background: var(--danger-color);
+            box-shadow: 0 4px 6px rgba(255, 118, 117, 0.2);
+        }
+
+        button.active:hover {
+            background: #d63031;
+            box-shadow: 0 6px 12px rgba(255, 118, 117, 0.3);
+        }
+
+        #status {
+            margin-top: 1.5rem;
+            font-size: 1rem;
+            min-height: 1.5em;
+            font-weight: 500;
+            padding: 10px;
+            border-radius: 8px;
+        }
+
+        .success {
+            color: #00b894;
+            background: rgba(0, 184, 148, 0.1);
+        }
+
+        .error {
+            color: #ff7675;
+            background: rgba(255, 118, 117, 0.1);
+        }
+
+        .info {
+            color: #0984e3;
+            background: rgba(9, 132, 227, 0.1);
+        }
+
+        #map {
+            height: 400px;
+            width: 100%;
+            border-radius: 16px;
+            margin: 1.5rem 0;
+            box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.05);
+            border: 2px solid rgba(255, 255, 255, 0.5);
+        }
+
+        .plant-section {
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 2px dashed #dfe6e9;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 14px;
+            font-size: 1rem;
+            border: 2px solid #dfe6e9;
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+            box-sizing: border-box;
+            transition: border-color 0.3s;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        .radio-group {
+            display: flex;
+            gap: 2rem;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .radio-label {
+            cursor: pointer;
+            font-size: 1.1rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            border-radius: 50px;
+            background: #f1f2f6;
+            transition: all 0.2s;
+        }
+
+        .radio-label:hover {
+            background: #dfe6e9;
+        }
+
+        input[type="radio"] {
+            accent-color: var(--primary-color);
+            transform: scale(1.2);
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .btn-secondary {
+            background: white;
+            color: var(--primary-color);
+            border: 2px solid var(--primary-color);
+            box-shadow: none;
+        }
+
+        .btn-secondary:hover {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        #plantSuccess {
+            animation: slideIn 0.5s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Digital Planter 🌱</h1>
+        <p>Discover & plant digital flora in the real world</p>
+
+        <div class="nav-buttons">
+            <button id="checkBtn" onclick="toggleLiveLocation()">
+                <span>📍</span> Start Live Tracking
+            </button>
+            <a href="/locations" class="btn btn-secondary">
+                <span>📋</span> View My Locations
+            </a>
+        </div>
+
+        <div id="status"></div>
+
+        <div id="map"></div>
+
+        <div class="plant-section">
+            <h2>Plant Something New</h2>
+            <p style="font-size: 0.95rem; margin-bottom: 1.5rem;">Select a location on the map, name your plant, and
+                choose its type.</p>
+
+            <input type="text" id="plantName" placeholder="Give your plant a name (e.g., 'Sunset Oak')" />
+
+            <div class="radio-group">
+                <label class="radio-label">
+                    <input type="radio" name="plantType" value="tree" checked> 🌳 Tree
+                </label>
+                <label class="radio-label">
+                    <input type="radio" name="plantType" value="flower"> 🌸 Flower
+                </label>
+            </div>
+
+            <button onclick="submitPlant()" style="width: 100%; font-size: 1.1rem; padding: 14px;">
+                ✅ Plant It Here
+            </button>
+
+            <div id="plantSuccess"
+                style="display: none; margin-top: 1.5rem; padding: 1.5rem; background: #e3f9e5; border-radius: 12px; border: 1px solid #b2f2bb;">
+                <p style="margin: 0 0 1rem 0; color: #2b8a3e; font-weight: 700; font-size: 1.2rem;">🎉 Successfully
+                    planted!</p>
+                <a href="/locations" class="btn" style="width: auto;">View My Garden ➔</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const statusDiv = document.getElementById('status');
+        const checkBtn = document.getElementById('checkBtn');
+
+        // Map variables
+        let map;
+        let selectedMarker = null;
+        let selectedLat = null;
+        let selectedLon = null;
+        let liveLocationMarker = null;
+        let watchId = null;
+        let isTracking = false;
+
+        // Initialize map
+        function initMap(lat = 20.5937, lon = 78.9629, zoom = 5) {
+            map = L.map('map').setView([lat, lon], zoom);
+
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors'
+            }).addTo(map);
+
+            // Handle map clicks
+            map.on('click', function (e) {
+                selectedLat = e.latlng.lat;
+                selectedLon = e.latlng.lng;
+
+                // Remove previous marker
+                if (selectedMarker) {
+                    map.removeLayer(selectedMarker);
+                }
+
+                // Add new marker
+                selectedMarker = L.marker([selectedLat, selectedLon], {
+                    icon: L.icon({
+                        iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
+                        shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
+                        iconSize: [25, 41],
+                        iconAnchor: [12, 41],
+                        popupAnchor: [1, -34],
+                        shadowSize: [41, 41]
+                    })
+                }).addTo(map);
+
+                selectedMarker.bindPopup('📍 Selected location').openPopup();
+                statusDiv.textContent = 'Location selected! Enter details below.';
+                statusDiv.className = 'info';
+
+                // Hide success message when selecting new location
+                document.getElementById('plantSuccess').style.display = 'none';
+            });
+        }
+
+        // Initialize map on page load
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    initMap(position.coords.latitude, position.coords.longitude, 13);
+                    loadPlantedLocations();
+                },
+                () => {
+                    initMap();
+                    loadPlantedLocations();
+                }
+            );
+        } else {
+            initMap();
+            loadPlantedLocations();
+        }
+
+        // Load and display all planted locations
+        function loadPlantedLocations() {
+            fetch('/get_plants')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.plants && data.plants.length > 0) {
+                        data.plants.forEach(plant => {
+                            const icon = plant.name.includes('🌳') ? '🌳' :
+                                plant.name.includes('🌸') ? '🌸' : '🌱';
+
+                            L.marker([plant.lat, plant.lon]).addTo(map)
+                                .bindPopup(`${icon} ${plant.name}`);
+                        });
+                    }
+                })
+                .catch((error) => {
+                    console.error('Error loading plants:', error);
+                });
+        }
+
+        // Toggle live location tracking
+        function toggleLiveLocation() {
+            if (!navigator.geolocation) {
+                statusDiv.textContent = 'Geolocation is not supported by your browser.';
+                statusDiv.className = 'error';
+                return;
+            }
+
+            if (isTracking) {
+                stopLiveLocation();
+            } else {
+                startLiveLocation();
+            }
+        }
+
+        function startLiveLocation() {
+            statusDiv.textContent = 'Starting live tracking...';
+            statusDiv.className = 'info';
+
+            watchId = navigator.geolocation.watchPosition(
+                updateLiveLocation,
+                handleLocationError,
+                {
+                    enableHighAccuracy: true,
+                    maximumAge: 0,
+                    timeout: 5000
+                }
+            );
+
+            isTracking = true;
+            checkBtn.innerHTML = '<span>🛑</span> Stop Tracking';
+            checkBtn.classList.add('active');
+        }
+
+        function stopLiveLocation() {
+            if (watchId !== null) {
+                navigator.geolocation.clearWatch(watchId);
+                watchId = null;
+            }
+
+            if (liveLocationMarker) {
+                map.removeLayer(liveLocationMarker);
+                liveLocationMarker = null;
+            }
+
+            isTracking = false;
+            checkBtn.innerHTML = '<span>📍</span> Start Live Tracking';
+            checkBtn.classList.remove('active');
+            statusDiv.textContent = 'Live tracking stopped.';
+            statusDiv.className = '';
+        }
+
+        function updateLiveLocation(position) {
+            const latitude = position.coords.latitude;
+            const longitude = position.coords.longitude;
+            const accuracy = position.coords.accuracy;
+
+            if (liveLocationMarker) {
+                liveLocationMarker.setLatLng([latitude, longitude]);
+            } else {
+                liveLocationMarker = L.marker([latitude, longitude], {
+                    icon: L.icon({
+                        iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-blue.png',
+                        shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
+                        iconSize: [25, 41],
+                        iconAnchor: [12, 41],
+                        popupAnchor: [1, -34],
+                        shadowSize: [41, 41]
+                    })
+                }).addTo(map);
+            }
+
+            liveLocationMarker.bindPopup(`📍 You are here<br>Accuracy: ${accuracy.toFixed(1)}m`).openPopup();
+            map.setView([latitude, longitude], 15);
+
+            statusDiv.textContent = `📍 Lat: ${latitude.toFixed(4)}, Lon: ${longitude.toFixed(4)}`;
+            statusDiv.className = 'success';
+
+            checkLocationForPlants(latitude, longitude);
+        }
+
+        function handleLocationError(error) {
+            let message = 'Unable to retrieve location.';
+            statusDiv.textContent = message;
+            statusDiv.className = 'error';
+
+            if (isTracking) {
+                stopLiveLocation();
+            }
+        }
+
+        function checkLocationForPlants(latitude, longitude) {
+            fetch('/check_location', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ lat: latitude, lon: longitude }),
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.nearby) {
+                        statusDiv.textContent = data.message + ' 🎉';
+                        statusDiv.className = 'success';
+                    }
+                });
+        }
+
+        // Submit plant function
+        function submitPlant() {
+            const plantName = document.getElementById('plantName').value.trim();
+            const plantType = document.querySelector('input[name="plantType"]:checked').value;
+
+            if (!plantName) {
+                statusDiv.textContent = 'Please give your plant a name!';
+                statusDiv.className = 'error';
+                return;
+            }
+
+            if (selectedLat === null || selectedLon === null) {
+                statusDiv.textContent = 'Please click on the map to choose a spot!';
+                statusDiv.className = 'error';
+                return;
+            }
+
+            statusDiv.textContent = 'Planting...';
+            statusDiv.className = 'info';
+
+            fetch('/plant_location', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    name: plantName,
+                    lat: selectedLat,
+                    lon: selectedLon,
+                    type: plantType
+                }),
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        statusDiv.textContent = '';
+                        statusDiv.className = '';
+                        document.getElementById('plantName').value = '';
+
+                        const plantEmoji = plantType === 'tree' ? '🌳' : '🌸';
+                        L.marker([selectedLat, selectedLon]).addTo(map)
+                            .bindPopup(`${plantEmoji} ${plantName}`);
+
+                        if (selectedMarker) {
+                            map.removeLayer(selectedMarker);
+                            selectedMarker = null;
+                        }
+                        selectedLat = null;
+                        selectedLon = null;
+
+                        document.getElementById('plantSuccess').style.display = 'block';
+                    } else {
+                        statusDiv.textContent = data.error || 'Error planting.';
+                        statusDiv.className = 'error';
+                    }
+                })
+                .catch((error) => {
+                    console.error('Error:', error);
+                    statusDiv.textContent = 'Error planting location.';
+                    statusDiv.className = 'error';
+                });
+        }
+    </script>
+</body>
+
+</html>

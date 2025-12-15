@@ -84,10 +84,13 @@ if (loginForm) {
                 const errorMessage = error.message;
                 console.error("Login Error:", errorCode, errorMessage);
 
-                if (errorCode === 'auth/operation-not-allowed') {
+                if (errorCode === 'auth/invalid-login-credentials' || errorCode === 'auth/wrong-password' || errorCode === 'auth/user-not-found') {
+                    alert("Invalid email or password. Please check your credentials or create a new account.");
+                } else if (errorCode === 'auth/operation-not-allowed') {
                     alert("Error: Email/Password login is not enabled in Firebase Console. Please enable it.");
+                } else if (errorCode === 'auth/too-many-requests') {
+                    alert("Too many failed attempts. Please try again later.");
                 } else {
-                    console.error("Login Error:", errorCode, errorMessage);
                     alert("Login failed: " + errorMessage);
                 }
             });

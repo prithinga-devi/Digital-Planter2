@@ -30,7 +30,7 @@ onAuthStateChanged(auth, (user) => {
         updateUserProfile(user);
     } else {
         // Redirect to home if not logged in or after logout
-        window.location.href = '/';
+        window.location.href = 'index.html';
     }
 });
 
@@ -41,7 +41,7 @@ if (logoutBtn) {
         try {
             await signOut(auth);
             // Redirect happens via onAuthStateChanged or here
-            window.location.href = "/";
+            window.location.href = "index.html";
         } catch (error) {
             console.error("Logout Error:", error);
             alert("Error logging out: " + error.message);

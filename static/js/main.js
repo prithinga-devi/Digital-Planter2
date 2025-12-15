@@ -51,7 +51,7 @@ const handleGoogleAuth = (e) => {
             const user = result.user;
             console.log("Google Sign-In Success:", user.email);
             // Redirect to the logged-in area
-            window.location.href = "/logged";
+            window.location.href = "logged.html";
         }).catch((error) => {
             console.error("Google Auth Error:", error);
             alert("Authentication failed: " + error.message);
@@ -77,7 +77,7 @@ if (loginForm) {
                 // Signed in 
                 const user = userCredential.user;
                 console.log("Login Success:", user.email);
-                window.location.href = "/logged";
+                window.location.href = "logged.html";
             })
             .catch((error) => {
                 const errorCode = error.code;
@@ -121,12 +121,12 @@ if (signupForm) {
                 }).then(() => {
                     console.log("Profile updated with username:", username);
                     alert("Account created! Redirecting...");
-                    window.location.href = "/logged";
+                    window.location.href = "logged.html";
                 }).catch((error) => {
                     console.error("Error updating profile:", error);
                     // Still redirect even if profile update fails, but warn
                     alert("Account created but failed to set username. Redirecting...");
-                    window.location.href = "/logged";
+                    window.location.href = "logged.html";
                 });
 
             })

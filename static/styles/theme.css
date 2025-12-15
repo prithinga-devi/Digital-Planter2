@@ -1,0 +1,257 @@
+/**
+ * Digital Planter - Premium Design System
+ * Theme Variables & Base Styles
+ */
+
+/* ============================================
+   DESIGN TOKENS - CSS Custom Properties
+   ============================================ */
+
+:root {
+    /* Light Mode (Default) */
+    --bg-primary: #F8FAF5;
+    --bg-secondary: #FFFFFF;
+    --bg-tertiary: #F0F4ED;
+    --bg-glass: rgba(255, 255, 255, 0.85);
+    
+    --surface-elevated: #FFFFFF;
+    --surface-overlay: rgba(255, 255, 255, 0.9);
+    
+    --accent-primary: #2D5A3D;
+    --accent-secondary: #4CAF50;
+    --accent-glow: #4CAF50;
+    --accent-hover: #3D7A52;
+    
+    --text-primary: #1A1A1A;
+    --text-secondary: #4A4A4A;
+    --text-muted: #6B7280;
+    --text-inverse: #FFFFFF;
+    
+    --border-color: rgba(45, 90, 61, 0.15);
+    --border-strong: rgba(45, 90, 61, 0.3);
+    
+    --shadow-soft: 0 4px 20px rgba(0, 0, 0, 0.08);
+    --shadow-medium: 0 8px 32px rgba(0, 0, 0, 0.12);
+    --shadow-glow: 0 0 20px rgba(76, 175, 80, 0.3);
+    
+    --blur-amount: 12px;
+    --transition-fast: 150ms ease;
+    --transition-medium: 300ms ease;
+    --transition-slow: 500ms ease;
+    
+    /* Layout */
+    --rail-width: 60px;
+    --tray-width: 380px;
+    --header-height: 0px;
+    --radius-sm: 8px;
+    --radius-md: 16px;
+    --radius-lg: 24px;
+    --radius-xl: 32px;
+}
+
+/* ============================================
+   NIGHT NURSERY - Dark Mode
+   ============================================ */
+
+[data-theme="dark"] {
+    --bg-primary: #1C231E;
+    --bg-secondary: #252D27;
+    --bg-tertiary: #1A211C;
+    --bg-glass: rgba(28, 35, 30, 0.85);
+    
+    --surface-elevated: #2A332C;
+    --surface-overlay: rgba(37, 45, 39, 0.95);
+    
+    --accent-primary: #90EE90;
+    --accent-secondary: #7DD87D;
+    --accent-glow: #90EE90;
+    --accent-hover: #A8F5A8;
+    
+    --text-primary: #E8F5E9;
+    --text-secondary: #B8D4BA;
+    --text-muted: #7A9A7C;
+    --text-inverse: #1C231E;
+    
+    --border-color: rgba(144, 238, 144, 0.15);
+    --border-strong: rgba(144, 238, 144, 0.3);
+    
+    --shadow-soft: 0 4px 20px rgba(0, 0, 0, 0.3);
+    --shadow-medium: 0 8px 32px rgba(0, 0, 0, 0.4);
+    --shadow-glow: 0 0 30px rgba(144, 238, 144, 0.4);
+}
+
+/* ============================================
+   BASE RESET & TYPOGRAPHY
+   ============================================ */
+
+*, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html {
+    font-size: 16px;
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    line-height: 1.6;
+    overflow: hidden;
+    transition: background-color var(--transition-medium), color var(--transition-medium);
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-weight: 600;
+    line-height: 1.3;
+    color: var(--text-primary);
+}
+
+h1 { font-size: 1.75rem; }
+h2 { font-size: 1.5rem; }
+h3 { font-size: 1.25rem; }
+h4 { font-size: 1.125rem; }
+
+p {
+    color: var(--text-secondary);
+}
+
+a {
+    color: var(--accent-primary);
+    text-decoration: none;
+    transition: color var(--transition-fast);
+}
+
+a:hover {
+    color: var(--accent-hover);
+}
+
+/* ============================================
+   UTILITY CLASSES
+   ============================================ */
+
+.glass {
+    background: var(--bg-glass);
+    backdrop-filter: blur(var(--blur-amount));
+    -webkit-backdrop-filter: blur(var(--blur-amount));
+    border: 1px solid var(--border-color);
+}
+
+.glass-strong {
+    background: var(--surface-overlay);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--border-strong);
+}
+
+.glow {
+    box-shadow: var(--shadow-glow);
+}
+
+.glow-text {
+    text-shadow: 0 0 10px var(--accent-glow);
+}
+
+/* ============================================
+   FORM ELEMENTS
+   ============================================ */
+
+input, textarea, select {
+    font-family: inherit;
+    font-size: 1rem;
+    padding: 14px 18px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    width: 100%;
+    transition: all var(--transition-fast);
+}
+
+input:focus, textarea:focus, select:focus {
+    outline: none;
+    border-color: var(--accent-primary);
+    box-shadow: 0 0 0 3px rgba(144, 238, 144, 0.2);
+}
+
+input::placeholder {
+    color: var(--text-muted);
+}
+
+/* ============================================
+   BUTTONS
+   ============================================ */
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 14px 24px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    border: none;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.btn-primary {
+    background: var(--accent-primary);
+    color: var(--text-inverse);
+    box-shadow: var(--shadow-glow);
+}
+
+.btn-primary:hover {
+    background: var(--accent-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 24px rgba(144, 238, 144, 0.4);
+}
+
+.btn-secondary {
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+}
+
+.btn-secondary:hover {
+    background: var(--border-color);
+}
+
+.btn-ghost {
+    background: transparent;
+    color: var(--text-secondary);
+    padding: 10px;
+}
+
+.btn-ghost:hover {
+    background: var(--bg-tertiary);
+    color: var(--accent-primary);
+}
+
+/* ============================================
+   SCROLLBAR STYLING
+   ============================================ */
+
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--bg-tertiary);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--border-strong);
+    border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--accent-primary);
+}

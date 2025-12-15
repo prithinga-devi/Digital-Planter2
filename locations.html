@@ -4,270 +4,256 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Garden - Digital Planter</title>
+    <title>My Garden | Digital Planter</title>
+
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="static/styles/theme.css">
+    <link rel="stylesheet" href="static/styles/components.css">
+
     <style>
-        :root {
-            --primary-brand: #059669;
-            --primary-hover: #047857;
-            --secondary-accent: #34D399;
-            --background-color: #F0FDF4;
-            --surface-color: #FFFFFF;
-            --text-main: #111827;
-            --text-muted: #6B7280;
-            --border-color: #E5E7EB;
-            --shadow-soft: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-            --radius-lg: 24px;
-            --radius-md: 16px;
-            --radius-sm: 8px;
-            --danger-color: #EF4444;
-        }
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: var(--background-color);
-            color: var(--text-main);
+        .garden-layout {
             min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            padding: 20px;
-        }
-
-        .app-container {
-            background-color: var(--surface-color);
-            width: 100%;
-            max-width: 500px;
-            border-radius: var(--radius-lg);
-            padding: 32px;
-            box-shadow: var(--shadow-soft);
-            height: fit-content;
-        }
-
-        header {
-            text-align: center;
-            margin-bottom: 24px;
-            position: relative;
-        }
-
-        .back-btn {
-            position: absolute;
-            left: 0;
-            top: 4px;
-            background: none;
-            border: none;
-            cursor: pointer;
-            color: var(--text-muted);
-            display: flex;
-            align-items: center;
-            font-size: 14px;
-            font-weight: 500;
-        }
-
-        .back-btn:hover {
-            color: var(--primary-brand);
-        }
-
-        h1 {
-            font-size: 24px;
-            font-weight: 700;
-            color: var(--text-main);
-        }
-
-        .subtitle {
-            font-size: 14px;
-            color: var(--text-muted);
-            margin-top: 4px;
-        }
-
-        .stats-card {
-            background: linear-gradient(135deg, #ECFDF5 0%, #D1FAE5 100%);
-            border-radius: var(--radius-md);
             padding: 24px;
-            text-align: center;
-            margin-bottom: 24px;
+            padding-left: calc(var(--rail-width) + 24px);
         }
 
-        .stats-number {
-            font-size: 36px;
-            font-weight: 700;
-            color: var(--primary-brand);
+        .garden-header {
+            margin-bottom: 32px;
         }
 
-        .stats-label {
-            font-size: 14px;
-            color: var(--primary-hover);
-            font-weight: 500;
-        }
-
-        .plant-list {
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-        }
-
-        .plant-card {
-            background: white;
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius-md);
-            padding: 16px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            transition: all 0.2s;
-            cursor: pointer;
-        }
-
-        .plant-card:hover {
-            border-color: var(--primary-brand);
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-        }
-
-        .plant-info {
+        .garden-header h1 {
+            font-size: 2rem;
+            margin-bottom: 8px;
             display: flex;
             align-items: center;
             gap: 12px;
         }
 
+        .garden-header p {
+            color: var(--text-muted);
+        }
+
+        .stats-row {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+
+        .stat-card {
+            background: var(--bg-secondary);
+            border-radius: var(--radius-lg);
+            padding: 24px;
+            border: 1px solid var(--border-color);
+            flex: 1;
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--accent-primary);
+        }
+
+        .stat-label {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .plants-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 20px;
+        }
+
+        .plant-card {
+            background: var(--bg-secondary);
+            border-radius: var(--radius-lg);
+            padding: 20px;
+            border: 1px solid var(--border-color);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .plant-card:hover {
+            border-color: var(--accent-primary);
+            box-shadow: var(--shadow-glow);
+            transform: translateY(-4px);
+        }
+
         .plant-icon {
-            width: 40px;
-            height: 40px;
-            background: #F3F4F6;
-            border-radius: 50%;
+            width: 56px;
+            height: 56px;
+            background: var(--bg-tertiary);
+            border-radius: var(--radius-md);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 20px;
+            font-size: 1.75rem;
         }
 
-        .plant-details h4 {
-            font-size: 16px;
+        .plant-info {
+            flex: 1;
+        }
+
+        .plant-name {
             font-weight: 600;
-            color: var(--text-main);
+            margin-bottom: 4px;
+            color: var(--text-primary);
         }
 
-        .plant-details p {
-            font-size: 12px;
+        .plant-location {
+            font-size: 0.875rem;
             color: var(--text-muted);
-            margin-top: 2px;
         }
 
-        .delete-btn {
-            background: none;
-            border: none;
+        .plant-delete {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: transparent;
+            border: 1px solid var(--border-color);
             color: var(--text-muted);
             cursor: pointer;
-            padding: 8px;
-            border-radius: 6px;
-            transition: all 0.2s;
+            transition: all var(--transition-fast);
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
-        .delete-btn:hover {
-            background: #FEF2F2;
-            color: var(--danger-color);
+        .plant-delete:hover {
+            background: #ff4444;
+            border-color: #ff4444;
+            color: white;
         }
 
         .empty-state {
             text-align: center;
-            padding: 40px 20px;
+            padding: 80px 20px;
             color: var(--text-muted);
         }
 
         .empty-icon {
-            font-size: 48px;
+            font-size: 4rem;
             margin-bottom: 16px;
-            display: block;
             opacity: 0.5;
         }
 
-        .loading {
-            text-align: center;
-            padding: 20px;
-            color: var(--text-muted);
-            font-size: 14px;
+        @media (max-width: 1024px) {
+            .garden-layout {
+                padding-left: 24px;
+                padding-bottom: 100px;
+            }
         }
     </style>
 </head>
 
 <body>
-    <div class="app-container">
-        <header>
-            <button class="back-btn" onclick="window.location.href='index.html'">
-                <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                    style="margin-right: 4px;">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
-                </svg>
-                Back
-            </button>
-            <h1>My Garden</h1>
-            <div class="subtitle">Your planted collection</div>
+    <!-- Command Rail -->
+    <nav class="command-rail">
+        <div class="rail-avatar" id="userAvatar" onclick="window.location.href='logged.html'">U</div>
+        <div class="rail-nav">
+            <button class="rail-item" title="Home" onclick="window.location.href='index.html'">🌱</button>
+            <button class="rail-item active" title="My Plants">📍</button>
+            <button class="rail-item" title="Statistics">📈</button>
+            <button class="rail-item" title="Settings">⚙️</button>
+        </div>
+        <div class="rail-footer">
+            <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()">🌙</button>
+        </div>
+    </nav>
+
+    <main class="garden-layout">
+        <header class="garden-header">
+            <h1>🌿 My Garden</h1>
+            <p>Your planted collection</p>
         </header>
 
-        <div class="stats-card">
-            <div class="stats-number" id="plantCount">-</div>
-            <div class="stats-label">Plants Growing</div>
+        <div class="stats-row">
+            <div class="stat-card">
+                <div class="stat-number" id="plantCount">-</div>
+                <div class="stat-label">Plants Growing</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="treeCount">-</div>
+                <div class="stat-label">Trees</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="flowerCount">-</div>
+                <div class="stat-label">Flowers</div>
+            </div>
         </div>
 
-        <div id="plantList" class="plant-list">
-            <div class="loading">Loading your garden...</div>
+        <div id="plantList" class="plants-grid">
+            <div class="empty-state">
+                <div class="empty-icon">🌱</div>
+                <p>Loading your garden...</p>
+            </div>
         </div>
-    </div>
+    </main>
 
     <script type="module">
+        import { toggleTheme } from './static/js/theme.js';
         import { getUserPlants, deletePlant } from './static/js/dataService.js';
+
+        window.toggleTheme = toggleTheme;
 
         function loadPlants() {
             const list = document.getElementById('plantList');
-            const count = document.getElementById('plantCount');
+            const totalCount = document.getElementById('plantCount');
+            const treeCount = document.getElementById('treeCount');
+            const flowerCount = document.getElementById('flowerCount');
 
             try {
                 const plants = getUserPlants();
 
+                const trees = plants.filter(p => p.name.includes('🌳')).length;
+                const flowers = plants.filter(p => p.name.includes('🌸')).length;
+
+                totalCount.textContent = plants.length;
+                treeCount.textContent = trees;
+                flowerCount.textContent = flowers;
+
                 if (plants && plants.length > 0) {
-                    count.textContent = plants.length;
                     list.innerHTML = plants.map(plant => {
                         const icon = plant.name.includes('🌳') ? '🌳' : '🌸';
                         const cleanName = plant.name.replace('🌳', '').replace('🌸', '').trim();
 
                         return `
                             <div class="plant-card" onclick="window.location.href='plant_detail.html?id=${plant.id}'">
+                                <div class="plant-icon">${icon}</div>
                                 <div class="plant-info">
-                                    <div class="plant-icon">${icon}</div>
-                                    <div class="plant-details">
-                                        <h4>${cleanName}</h4>
-                                        <p>📍 ${plant.lat.toFixed(4)}, ${plant.lon.toFixed(4)}</p>
-                                    </div>
+                                    <div class="plant-name">${cleanName}</div>
+                                    <div class="plant-location">📍 ${plant.lat.toFixed(4)}, ${plant.lon.toFixed(4)}</div>
                                 </div>
-                                <button class="delete-btn" onclick="event.stopPropagation(); window.handleDelete('${plant.id}')" title="Delete Plant">
-                                    <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                <button class="plant-delete" onclick="event.stopPropagation(); handleDelete('${plant.id}')" title="Delete">
+                                    🗑️
                                 </button>
                             </div>
                         `;
                     }).join('');
                 } else {
-                    count.textContent = '0';
                     list.innerHTML = `
-                        <div class="empty-state">
-                            <span class="empty-icon">🌱</span>
+                        <div class="empty-state" style="grid-column: 1/-1;">
+                            <div class="empty-icon">🌱</div>
                             <p>You haven't planted anything yet.</p>
+                            <button class="btn btn-primary" style="margin-top: 16px;" onclick="window.location.href='index.html'">
+                                Plant Your First Seed
+                            </button>
                         </div>
                     `;
                 }
             } catch (e) {
                 console.error('Error loading plants:', e);
-                list.innerHTML = '<div class="loading">Error loading plants.</div>';
+                list.innerHTML = '<div class="empty-state"><p>Error loading plants.</p></div>';
             }
         }
 
-        // Expose delete function globally for onclick handlers
         window.handleDelete = function (id) {
             if (!confirm('Are you sure you want to remove this plant?')) return;
-
             const success = deletePlant(id);
             if (success) {
                 loadPlants();

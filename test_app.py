@@ -1,7 +1,7 @@
 import unittest
 import json
 from digital_planter import DigitalPlanter
-from app import app
+from app import app, planters
 
 class TestDigitalPlanter(unittest.TestCase):
     def test_is_near_location(self):
@@ -21,6 +21,13 @@ class TestFlaskApp(unittest.TestCase):
     def setUp(self):
         self.app = app.test_client()
         self.app.testing = True
+        # Add a test planter for the generic test
+        self.test_planter = DigitalPlanter("Test Garden", 0.0, 0.0)
+        planters.append(self.test_planter)
+
+    def tearDown(self):
+        if self.test_planter in planters:
+            planters.remove(self.test_planter)
 
     def test_index_route(self):
         response = self.app.get('/')

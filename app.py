@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, render_template, send_from_directory, session, redirect
+from flask import Flask, request, jsonify, render_template, send_from_directory, redirect
 from digital_planter import DigitalPlanter
 from werkzeug.utils import secure_filename
 import json
@@ -6,19 +6,10 @@ import os
 import requests
 import time
 import math
-import sqlite3
-from flask_bcrypt import Bcrypt
 
 app = Flask(__name__)
-app.secret_key = "SUPER_SECRET_KEY"
-bcrypt = Bcrypt(app)
+app.secret_key = "SUPER_SECRET_KEY" 
 
-# ------------------ DATABASE HELPER ------------------
-
-def get_db():
-    conn = sqlite3.connect("users.db")
-    conn.row_factory = sqlite3.Row
-    return conn
 app.config['UPLOAD_FOLDER'] = 'uploads'
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max file size
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
@@ -32,10 +23,11 @@ def load_plants():
             with open(PLANTS_FILE, 'r') as f:
                 data = json.load(f)
                 return [DigitalPlanter(
+
                     p['name'], p['lat'], p['lon'], 
                     p.get('is_user_planted', False), 
                     p.get('id'),
-                    None,
+                    p.get('user_id'),
                     p.get('photo_url'),
                     p.get('address'),
                     p.get('landmarks')
@@ -54,10 +46,14 @@ def load_plants():
         DigitalPlanter("Bamboo - Lodhi Garden Path, Delhi", 28.5933, 77.2197, False)
     ]
 
+# Load existing plants
+planters = load_plants()
+
 def save_plants():
     """Save plants to JSON file."""
     data = [{
         'id': p.id, 
+        'user_id': p.user_id,
         'name': p.name, 
         'lat': p.lat, 
         'lon': p.lon, 
@@ -191,93 +187,15 @@ def generate_social_post(plant, distance_km=None):
     
     # Multiple template styles for variety
     templates = {
-        # Short & Simple
-        'short': f"""Just planted a new {plant_type} today! 🌿{plant_emoji}
-One small step for a greener tomorrow. 🌍✨
-
-📍 {clean_name}
-🗺️ {map_link}""",
-        
-        # Inspirational
-        'inspirational': f"""Today I planted a {plant_type} — a tiny act of kindness for our planet.
-Let's grow more green together! 🌱💚
-
-📍 {clean_name}
-🗺️ {location_info}
-🔗 {map_link}
-
-#PlantMore #GoGreen #DigitalPlanter""",
-        
-        # Social Media Style
-        'social': f"""New plant baby added to my garden! {plant_emoji}🌱
-Every plant is a promise for a better future.
-
-📍 {clean_name}
-🗺️ {location_info}
-{landmarks_text}
-🔗 {map_link}
-
-#NatureLove #PlantationDrive #GreenLife #EcoWarrior""",
-        
-        # Instagram Caption Style
-        'instagram': f"""Planted something beautiful today.
-Hoping it grows strong and bright—just like dreams. ✨🌱
-
-{plant_emoji} {clean_name}
-📍 {location_info}
-{landmarks_text}
-
-View on map: {map_link}
-
-#GardenVibes #PlantingDay #NatureMagic #GreenThumb #EcoFriendly""",
-        
-        # Detailed Post
-        'detailed': f"""🌱 I planted a {plant_type} today!
-
-📍 {clean_name}
-🗺️ {location_info}
-📌 Coordinates: {plant.lat:.4f}, {plant.lon:.4f}
-{f'🏞️ {landmarks_text}' if landmarks_text else ''}
-
-View on map: {map_link}
-
-#DigitalPlanter #PlantATree #GreenEarth #SaveThePlanet #ClimateAction""",
-        
-        # WhatsApp Status Style
-        'whatsapp': f"""Planted a new {plant_type} today {plant_emoji}
-Let's make the Earth greener, one plant at a time!
-
-📍 {clean_name}
-{map_link}""",
-        
-        # YouTube/Shorts Style
-        'youtube': f"""Planting a new {plant_type} today! 🌱
-Join me in making the world greener.
-
-📍 {clean_name}
-🗺️ {location_info}
-{map_link}
-
-Like, share, and comment what plant I should grow next! 🌿✨
-#shorts #planting #green #ecofriendly #nature""",
-        
-        # Professional/Corporate Style
-        'professional': f"""I planted a new {plant_type} today as part of my commitment to environmental care.
-Small actions create big impacts. 🌱🌍
-
-📍 Location: {clean_name}
-🗺️ {location_info}
-🔗 {map_link}
-
-#Sustainability #EcoFriendly #CorporateResponsibility #GreenInitiative""",
-        
-        # Twitter/X (Character limited)
-        'twitter': f"""🌱 Just planted a {plant_type}!
-
-📍 {clean_name}
-🗺️ {map_link}
-
-#PlantATree #GoGreen"""
+        'short': f"Just planted a new {plant_type} today! 🌿{plant_emoji}\nOne small step for a greener tomorrow. 🌍✨\n\n📍 {clean_name}\n🗺️ {map_link}",
+        'inspirational': f"Today I planted a {plant_type} — a tiny act of kindness for our planet.\nLet's grow more green together! 🌱💚\n\n📍 {clean_name}\n🗺️ {location_info}\n🔗 {map_link}\n\n#PlantMore #GoGreen #DigitalPlanter",
+        'social': f"New plant baby added to my garden! {plant_emoji}🌱\nEvery plant is a promise for a better future.\n\n📍 {clean_name}\n🗺️ {location_info}\n{landmarks_text}\n🔗 {map_link}\n\n#NatureLove #PlantationDrive #GreenLife #EcoWarrior",
+        'instagram': f"Planted something beautiful today.\nHoping it grows strong and bright—just like dreams. ✨🌱\n\n{plant_emoji} {clean_name}\n📍 {location_info}\n{landmarks_text}\n\nView on map: {map_link}\n\n#GardenVibes #PlantingDay #NatureMagic #GreenThumb #EcoFriendly",
+        'detailed': f"🌱 I planted a {plant_type} today!\n\n📍 {clean_name}\n🗺️ {location_info}\n📌 Coordinates: {plant.lat:.4f}, {plant.lon:.4f}\n{f'🏞️ {landmarks_text}' if landmarks_text else ''}\n\nView on map: {map_link}\n\n#DigitalPlanter #PlantATree #GreenEarth #SaveThePlanet #ClimateAction",
+        'whatsapp': f"Planted a new {plant_type} today {plant_emoji}\nLet's make the Earth greener, one plant at a time!\n\n📍 {clean_name}\n{map_link}",
+        'youtube': f"Planting a new {plant_type} today! 🌱\nJoin me in making the world greener.\n\n📍 {clean_name}\n🗺️ {location_info}\n{map_link}\n\nLike, share, and comment what plant I should grow next! 🌿✨\n#shorts #planting #green #ecofriendly #nature",
+        'professional': f"I planted a new {plant_type} today as part of my commitment to environmental care.\nSmall actions create big impacts. 🌱🌍\n\n📍 Location: {clean_name}\n🗺️ {location_info}\n🔗 {map_link}\n\n#Sustainability #EcoFriendly #CorporateResponsibility #GreenInitiative",
+        'twitter': f"🌱 Just planted a {plant_type}!\n\n📍 {clean_name}\n🗺️ {map_link}\n\n#PlantATree #GoGreen"
     }
     
     return {
@@ -293,12 +211,17 @@ Small actions create big impacts. 🌱🌍
         }
     }
 
-# Load existing plants
-planters = load_plants()
-
 @app.route('/')
 def index():
     return render_template('index.html')
+
+@app.route('/login')
+def login():
+    return render_template('login.html')
+
+@app.route('/logged')
+def logged():
+    return render_template('logged.html')
 
 @app.route('/locations')
 def locations():
@@ -326,6 +249,33 @@ def get_user_plants():
         'landmarks': p.landmarks
     } for p in user_plants]
     return jsonify({'plants': plants_data})
+
+@app.route('/plant/<plant_id>')
+def plant_detail(plant_id):
+    """Serve the plant detail page."""
+    return render_template('plant_detail.html', plant_id=plant_id)
+
+@app.route('/get_plant_details/<plant_id>', methods=['GET'])
+def get_plant_details(plant_id):
+    """Return details for a specific plant."""
+    plant = next((p for p in planters if p.id == plant_id), None)
+    
+    if not plant:
+        return jsonify({'error': 'Plant not found'}), 404
+        
+    return jsonify({
+        'success': True,
+        'plant': {
+            'id': plant.id,
+            'name': plant.name,
+            'lat': plant.lat,
+            'lon': plant.lon,
+            'photo_url': plant.photo_url,
+            'address': plant.address,
+            'landmarks': plant.landmarks,
+            'is_user_planted': plant.is_user_planted
+        }
+    })
 
 @app.route('/delete_plant', methods=['POST'])
 def delete_plant():
@@ -608,62 +558,6 @@ def share_location():
         'address': address,
         'coordinates': f'{lat:.6f}, {lon:.6f}'
     })
-
-# ------------------ AUTH ROUTES ------------------
-
-@app.route("/signup", methods=["POST"])
-def signup():
-    data = request.json
-    username = data["username"]
-    email = data["email"]
-    password = data["password"]
-
-    hashed_pw = bcrypt.generate_password_hash(password).decode("utf-8")
-
-    try:
-        conn = get_db()
-        conn.execute("INSERT INTO users (username, email, password) VALUES (?, ?, ?)",
-                     (username, email, hashed_pw))
-        conn.commit()
-        return jsonify({"success": True})
-    except Exception as e:
-        return jsonify({"success": False, "error": str(e)})
-
-
-@app.route("/login", methods=["POST"])
-def login():
-    data = request.json
-    email = data["email"]
-    password = data["password"]
-
-    conn = get_db()
-    user = conn.execute("SELECT * FROM users WHERE email = ?", (email,)).fetchone()
-
-    if user and bcrypt.check_password_hash(user["password"], password):
-        session["user_id"] = user["id"]
-        session["username"] = user["username"]
-        return jsonify({"success": True})
-    else:
-        return jsonify({"success": False, "error": "Invalid email or password"})
-
-
-@app.route("/logout")
-def logout():
-    session.clear()
-    return redirect("/")
-
-
-@app.route("/auth_status")
-def auth_status():
-    return jsonify({"logged_in": "user_id" in session, "username": session.get("username")})
-
-@app.route("/login_page")
-def login_page():
-    return render_template("login.html")
-
-@app.route("/signup_page")
-def signup_page():
-    return render_template("signup.html")
 
 if __name__ == '__main__':
     app.run(debug=True)

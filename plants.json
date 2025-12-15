@@ -88,5 +88,57 @@
     "photo_url": null,
     "address": null,
     "landmarks": []
+  },
+  {
+    "id": "c4bdacb2-1248-418e-89b8-68b7d163978f",
+    "name": "tree \ud83c\udf33",
+    "lat": 12.907821,
+    "lon": 80.102688,
+    "is_user_planted": true,
+    "photo_url": "/uploads/1765606021_tree.jpg",
+    "address": "Peerkankaranai, Irumbuliyur, Tambaram, Chengalpattu, Tamil Nadu, 600045, India",
+    "landmarks": [
+      "Irumbuliyur",
+      "Tambaram"
+    ]
+  },
+  {
+    "id": "925f240f-4c97-447a-820b-8b2f4795f9d2",
+    "name": "flower \ud83c\udf38",
+    "lat": 12.907821,
+    "lon": 80.102688,
+    "is_user_planted": true,
+    "photo_url": "/uploads/1765606795_flower.jpg",
+    "address": "Peerkankaranai, Irumbuliyur, Tambaram, Chengalpattu, Tamil Nadu, 600045, India",
+    "landmarks": [
+      "Irumbuliyur",
+      "Tambaram"
+    ]
+  },
+  {
+    "id": "b4dd3a6c-650e-4f0e-a11d-680e74477581",
+    "name": "tree \ud83c\udf33",
+    "lat": 12.907821,
+    "lon": 80.102688,
+    "is_user_planted": true,
+    "photo_url": "/uploads/1765607899_tree.jpg",
+    "address": "Peerkankaranai, Irumbuliyur, Tambaram, Chengalpattu, Tamil Nadu, 600045, India",
+    "landmarks": [
+      "Irumbuliyur",
+      "Tambaram"
+    ]
+  },
+  {
+    "id": "efe06c0d-f4d2-426b-8b1e-247cfb8aeb53",
+    "name": "tree \ud83c\udf33",
+    "lat": 12.907821,
+    "lon": 80.102688,
+    "is_user_planted": true,
+    "photo_url": "/uploads/1765607900_tree.jpg",
+    "address": "Peerkankaranai, Irumbuliyur, Tambaram, Chengalpattu, Tamil Nadu, 600045, India",
+    "landmarks": [
+      "Irumbuliyur",
+      "Tambaram"
+    ]
   }
 ]

@@ -34,7 +34,7 @@
                 <button class="rail-item active" title="Home" onclick="showHome()">🌱</button>
                 <button class="rail-item" title="My Plants" onclick="window.location.href='locations.html'">📍</button>
                 <button class="rail-item" title="Statistics" onclick="showStats()">📈</button>
-                <button class="rail-item" title="Settings">⚙️</button>
+                <button class="rail-item" title="Settings" onclick="openSettings()">⚙️</button>
             </div>
 
             <!-- Footer: Theme Toggle -->
@@ -195,6 +195,123 @@
         </div>
     </div>
 
+    <!-- Settings Modal -->
+    <div id="settingsModal" style="
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.5);
+        backdrop-filter: blur(4px);
+        z-index: 10000;
+        align-items: center;
+        justify-content: center;
+    ">
+        <div style="
+            background: var(--bg-secondary);
+            padding: 32px;
+            border-radius: var(--radius-xl);
+            max-width: 400px;
+            width: 90%;
+            margin: 20px;
+        ">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+                <h2 style="color: var(--accent-primary);">⚙️ Settings</h2>
+                <button class="tray-close" onclick="closeSettings()">✕</button>
+            </div>
+
+            <!-- Theme Toggle -->
+            <div
+                style="display: flex; justify-content: space-between; align-items: center; padding: 16px; background: var(--bg-tertiary); border-radius: var(--radius-md); margin-bottom: 12px;">
+                <div>
+                    <div style="font-weight: 600; color: var(--text-primary);">Night Nursery Mode</div>
+                    <div style="font-size: 0.875rem; color: var(--text-muted);">Toggle dark theme</div>
+                </div>
+                <button class="theme-toggle" onclick="toggleTheme()">🌙</button>
+            </div>
+
+            <!-- Clear Data -->
+            <div
+                style="display: flex; justify-content: space-between; align-items: center; padding: 16px; background: var(--bg-tertiary); border-radius: var(--radius-md); margin-bottom: 12px;">
+                <div>
+                    <div style="font-weight: 600; color: var(--text-primary);">Clear All Plants</div>
+                    <div style="font-size: 0.875rem; color: var(--text-muted);">Reset your garden</div>
+                </div>
+                <button class="btn btn-secondary" onclick="clearAllPlants()" style="padding: 8px 16px;">Clear</button>
+            </div>
+
+            <!-- Login/Logout -->
+            <div
+                style="display: flex; justify-content: space-between; align-items: center; padding: 16px; background: var(--bg-tertiary); border-radius: var(--radius-md); margin-bottom: 24px;">
+                <div>
+                    <div style="font-weight: 600; color: var(--text-primary);">Account</div>
+                    <div id="accountEmail" style="font-size: 0.875rem; color: var(--text-muted);">Not logged in</div>
+                </div>
+                <button class="btn btn-secondary" id="authBtn" onclick="window.location.href='login.html'"
+                    style="padding: 8px 16px;">Login</button>
+            </div>
+
+            <div style="text-align: center; color: var(--text-muted); font-size: 0.75rem;">
+                Digital Planter v2.0 • Premium Edition
+            </div>
+        </div>
+    </div>
+
+    <!-- Stats Modal -->
+    <div id="statsModal" style="
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.5);
+        backdrop-filter: blur(4px);
+        z-index: 10000;
+        align-items: center;
+        justify-content: center;
+    ">
+        <div style="
+            background: var(--bg-secondary);
+            padding: 32px;
+            border-radius: var(--radius-xl);
+            max-width: 400px;
+            width: 90%;
+            margin: 20px;
+        ">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+                <h2 style="color: var(--accent-primary);">📈 Statistics</h2>
+                <button class="tray-close" onclick="closeStats()">✕</button>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 24px;">
+                <div
+                    style="background: var(--bg-tertiary); padding: 20px; border-radius: var(--radius-md); text-align: center;">
+                    <div id="statTotal" style="font-size: 2rem; font-weight: 700; color: var(--accent-primary);">0</div>
+                    <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">Total Plants
+                    </div>
+                </div>
+                <div
+                    style="background: var(--bg-tertiary); padding: 20px; border-radius: var(--radius-md); text-align: center;">
+                    <div id="statTrees" style="font-size: 2rem; font-weight: 700; color: var(--accent-primary);">0</div>
+                    <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">Trees 🌳</div>
+                </div>
+                <div
+                    style="background: var(--bg-tertiary); padding: 20px; border-radius: var(--radius-md); text-align: center;">
+                    <div id="statFlowers" style="font-size: 2rem; font-weight: 700; color: var(--accent-primary);">0
+                    </div>
+                    <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">Flowers 🌸
+                    </div>
+                </div>
+                <div
+                    style="background: var(--bg-tertiary); padding: 20px; border-radius: var(--radius-md); text-align: center;">
+                    <div id="statUserPlanted" style="font-size: 2rem; font-weight: 700; color: var(--accent-primary);">0
+                    </div>
+                    <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">By You</div>
+                </div>
+            </div>
+
+            <button class="btn btn-primary" style="width: 100%;" onclick="window.location.href='locations.html'">View
+                All Plants</button>
+        </div>
+    </div>
+
     <!-- Theme Script -->
     <script type="module">
         import { toggleTheme } from './static/js/theme.js';
@@ -215,11 +332,28 @@
         // Auth State
         onAuthStateChanged(auth, (user) => {
             const avatar = document.getElementById('userAvatar');
+            const accountEmail = document.getElementById('accountEmail');
+            const authBtn = document.getElementById('authBtn');
+
             if (user) {
                 let initial = 'U';
                 if (user.displayName) initial = user.displayName.charAt(0).toUpperCase();
                 else if (user.email) initial = user.email.charAt(0).toUpperCase();
                 avatar.textContent = initial;
+
+                // Update settings modal
+                if (accountEmail) accountEmail.textContent = user.email || user.displayName || 'Logged in';
+                if (authBtn) {
+                    authBtn.textContent = 'Logout';
+                    authBtn.onclick = () => window.location.href = 'logged.html';
+                }
+            } else {
+                avatar.textContent = 'U';
+                if (accountEmail) accountEmail.textContent = 'Not logged in';
+                if (authBtn) {
+                    authBtn.textContent = 'Login';
+                    authBtn.onclick = () => window.location.href = 'login.html';
+                }
             }
         });
 
@@ -359,7 +493,37 @@
         }
 
         function showStats() {
-            showToast('Statistics coming soon!');
+            // Load plant data from localStorage
+            const plants = JSON.parse(localStorage.getItem('digital_planter_plants') || '[]');
+            const trees = plants.filter(p => p.name.includes('🌳')).length;
+            const flowers = plants.filter(p => p.name.includes('🌸')).length;
+            const userPlanted = plants.filter(p => p.is_user_planted).length;
+
+            document.getElementById('statTotal').textContent = plants.length;
+            document.getElementById('statTrees').textContent = trees;
+            document.getElementById('statFlowers').textContent = flowers;
+            document.getElementById('statUserPlanted').textContent = userPlanted;
+
+            document.getElementById('statsModal').style.display = 'flex';
+        }
+
+        function closeStats() {
+            document.getElementById('statsModal').style.display = 'none';
+        }
+
+        function openSettings() {
+            document.getElementById('settingsModal').style.display = 'flex';
+        }
+
+        function closeSettings() {
+            document.getElementById('settingsModal').style.display = 'none';
+        }
+
+        function clearAllPlants() {
+            if (!confirm('Are you sure you want to delete ALL your plants? This cannot be undone!')) return;
+            localStorage.removeItem('digital_planter_plants');
+            showToast('All plants cleared!');
+            closeSettings();
         }
 
         // Photo Preview

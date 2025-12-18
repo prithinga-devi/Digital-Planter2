@@ -4,262 +4,356 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Garden | Digital Planter</title>
-
+    <title>My Garden - Digital Planter</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="static/styles/theme.css">
-    <link rel="stylesheet" href="static/styles/components.css">
-
     <style>
-        .garden-layout {
+        :root {
+            /* Night Nursery Theme (Primary) */
+            --bg-night: #1C231E;
+            --surface-night: rgba(28, 35, 30, 0.8);
+            --accent-glow: #90EE90;
+            --text-main: #F0FDF4;
+            --text-muted: #94A3B8;
+            --border-glass: rgba(144, 238, 144, 0.2);
+            --radius-lg: 24px;
+            --radius-md: 16px;
+            --transition-smooth: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            --glass-blur: blur(12px);
+        }
+
+        [data-theme="light"] {
+            --bg-night: #F8FAF8;
+            --surface-night: rgba(255, 255, 255, 0.9);
+            --accent-glow: #059669;
+            --text-main: #111827;
+            --text-muted: #4B5563;
+            --border-glass: rgba(5, 150, 105, 0.1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-night);
+            color: var(--text-main);
             min-height: 100vh;
-            padding: 24px;
-            padding-left: calc(var(--rail-width) + 24px);
+            display: flex;
+            justify-content: center;
+            padding: 60px 20px;
         }
 
-        .garden-header {
-            margin-bottom: 32px;
+        .garden-container {
+            width: 100%;
+            max-width: 900px;
+            display: flex;
+            flex-direction: column;
+            gap: 48px;
         }
 
-        .garden-header h1 {
-            font-size: 2rem;
-            margin-bottom: 8px;
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            border-bottom: 1px solid var(--border-glass);
+            padding-bottom: 24px;
+        }
+
+        .header-title h1 {
+            font-size: 42px;
+            font-weight: 800;
+            letter-spacing: -1.5px;
+            color: var(--text-main);
+        }
+
+        .header-title p {
+            color: var(--accent-glow);
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 12px;
+            letter-spacing: 2px;
+        }
+
+        .back-link {
+            text-decoration: none;
+            color: var(--text-muted);
+            font-weight: 600;
+            font-size: 14px;
+            transition: var(--transition-smooth);
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 8px;
         }
 
-        .garden-header p {
-            color: var(--text-muted);
+        .back-link:hover {
+            color: var(--accent-glow);
+            transform: translateX(-4px);
         }
 
-        .stats-row {
-            display: flex;
-            gap: 16px;
-            margin-bottom: 32px;
+        /* Stats Section */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 24px;
         }
 
         .stat-card {
-            background: var(--bg-secondary);
+            background: var(--surface-night);
+            backdrop-filter: var(--glass-blur);
+            border: 1px solid var(--border-glass);
+            padding: 32px;
             border-radius: var(--radius-lg);
-            padding: 24px;
-            border: 1px solid var(--border-color);
-            flex: 1;
+            text-align: center;
+            transition: var(--transition-smooth);
         }
 
-        .stat-number {
-            font-size: 2.5rem;
-            font-weight: 700;
-            color: var(--accent-primary);
+        .stat-card:hover {
+            transform: translateY(-8px);
+            border-color: var(--accent-glow);
+        }
+
+        .stat-value {
+            font-size: 48px;
+            font-weight: 800;
+            color: var(--accent-glow);
+            line-height: 1;
+            margin-bottom: 8px;
         }
 
         .stat-label {
-            font-size: 0.875rem;
+            font-size: 11px;
+            font-weight: 700;
             color: var(--text-muted);
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            letter-spacing: 1.5px;
         }
 
-        .plants-grid {
+        /* Plant Grid */
+        .plant-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-            gap: 20px;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 24px;
         }
 
         .plant-card {
-            background: var(--bg-secondary);
+            background: var(--surface-night);
+            backdrop-filter: var(--glass-blur);
+            border: 1px solid var(--border-glass);
             border-radius: var(--radius-lg);
-            padding: 20px;
-            border: 1px solid var(--border-color);
+            overflow: hidden;
+            transition: var(--transition-smooth);
+            position: relative;
             cursor: pointer;
-            transition: all var(--transition-fast);
-            display: flex;
-            align-items: center;
-            gap: 16px;
         }
 
         .plant-card:hover {
-            border-color: var(--accent-primary);
-            box-shadow: var(--shadow-glow);
-            transform: translateY(-4px);
+            transform: scale(1.02);
+            border-color: var(--accent-glow);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
         }
 
-        .plant-icon {
-            width: 56px;
-            height: 56px;
-            background: var(--bg-tertiary);
-            border-radius: var(--radius-md);
+        .plant-img-wrapper {
+            height: 200px;
+            background: rgba(0, 0, 0, 0.2);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.75rem;
+            font-size: 3rem;
         }
 
-        .plant-info {
-            flex: 1;
+        .plant-img-wrapper img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .plant-content {
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
         }
 
         .plant-name {
-            font-weight: 600;
-            margin-bottom: 4px;
-            color: var(--text-primary);
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text-main);
         }
 
-        .plant-location {
-            font-size: 0.875rem;
+        .plant-meta {
+            font-size: 13px;
             color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 6px;
         }
 
-        .plant-delete {
-            width: 40px;
-            height: 40px;
+        .delete-icon {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            width: 36px;
+            height: 36px;
+            background: rgba(239, 68, 68, 0.1);
+            color: #EF4444;
             border-radius: 50%;
-            background: transparent;
-            border: 1px solid var(--border-color);
-            color: var(--text-muted);
-            cursor: pointer;
-            transition: all var(--transition-fast);
             display: flex;
             align-items: center;
             justify-content: center;
+            opacity: 0;
+            transition: var(--transition-smooth);
+            border: none;
+            cursor: pointer;
+            backdrop-filter: blur(4px);
         }
 
-        .plant-delete:hover {
-            background: #ff4444;
-            border-color: #ff4444;
+        .plant-card:hover .delete-icon {
+            opacity: 1;
+        }
+
+        .delete-icon:hover {
+            background: #EF4444;
             color: white;
+            transform: rotate(90deg);
         }
 
-        .empty-state {
+        .theme-toggle-btn {
+            position: fixed;
+            bottom: 32px;
+            right: 32px;
+            width: 56px;
+            height: 56px;
+            background: var(--surface-night);
+            backdrop-filter: var(--glass-blur);
+            border: 1px solid var(--border-glass);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            cursor: pointer;
+            z-index: 100;
+            transition: var(--transition-smooth);
+        }
+
+        .theme-toggle-btn:hover {
+            transform: rotate(30deg) scale(1.1);
+            border-color: var(--accent-glow);
+        }
+
+        .loading {
+            grid-column: 1 / -1;
             text-align: center;
-            padding: 80px 20px;
+            padding: 60px;
             color: var(--text-muted);
-        }
-
-        .empty-icon {
-            font-size: 4rem;
-            margin-bottom: 16px;
-            opacity: 0.5;
-        }
-
-        @media (max-width: 1024px) {
-            .garden-layout {
-                padding-left: 24px;
-                padding-bottom: 100px;
-            }
+            font-weight: 600;
+            letter-spacing: 2px;
         }
     </style>
 </head>
 
 <body>
-    <!-- Command Rail -->
-    <nav class="command-rail">
-        <div class="rail-avatar" id="userAvatar" onclick="window.location.href='logged.html'">U</div>
-        <div class="rail-nav">
-            <button class="rail-item" title="Home" onclick="window.location.href='index.html'">🌱</button>
-            <button class="rail-item active" title="My Plants">📍</button>
-            <button class="rail-item" title="Statistics">📈</button>
-            <button class="rail-item" title="Settings">⚙️</button>
-        </div>
-        <div class="rail-footer">
-            <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()">🌙</button>
-        </div>
-    </nav>
-
-    <main class="garden-layout">
-        <header class="garden-header">
-            <h1>🌿 My Garden</h1>
-            <p>Your planted collection</p>
+    <div class="garden-container">
+        <header>
+            <div class="header-title">
+                <p>Digital Ecosystem</p>
+                <h1>My Garden</h1>
+            </div>
+            <a href="index.html" class="back-link">
+                <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                </svg>
+                Return to Orbit
+            </a>
         </header>
 
-        <div class="stats-row">
+        <section class="stats-grid">
             <div class="stat-card">
-                <div class="stat-number" id="plantCount">-</div>
-                <div class="stat-label">Plants Growing</div>
+                <div class="stat-value" id="plantCount">0</div>
+                <div class="stat-label">Total Species</div>
             </div>
             <div class="stat-card">
-                <div class="stat-number" id="treeCount">-</div>
-                <div class="stat-label">Trees</div>
+                <div class="stat-value">100%</div>
+                <div class="stat-label">Vitality Score</div>
             </div>
-            <div class="stat-card">
-                <div class="stat-number" id="flowerCount">-</div>
-                <div class="stat-label">Flowers</div>
-            </div>
-        </div>
+        </section>
 
-        <div id="plantList" class="plants-grid">
-            <div class="empty-state">
-                <div class="empty-icon">🌱</div>
-                <p>Loading your garden...</p>
-            </div>
-        </div>
-    </main>
+        <main id="plantList" class="plant-grid">
+            <div class="loading">SCANNING GARDEN...</div>
+        </main>
+    </div>
+
+    <div class="theme-toggle-btn" onclick="window.toggleTheme()" id="themeToggle">🌙</div>
 
     <script type="module">
-        import { toggleTheme } from './static/js/theme.js';
         import { getUserPlants, deletePlant } from './static/js/dataService.js';
-
+        import { toggleTheme } from './static/js/theme.js';
         window.toggleTheme = toggleTheme;
 
         function loadPlants() {
             const list = document.getElementById('plantList');
-            const totalCount = document.getElementById('plantCount');
-            const treeCount = document.getElementById('treeCount');
-            const flowerCount = document.getElementById('flowerCount');
+            const count = document.getElementById('plantCount');
 
             try {
                 const plants = getUserPlants();
-
-                const trees = plants.filter(p => p.name.includes('🌳')).length;
-                const flowers = plants.filter(p => p.name.includes('🌸')).length;
-
-                totalCount.textContent = plants.length;
-                treeCount.textContent = trees;
-                flowerCount.textContent = flowers;
+                count.textContent = plants.length;
 
                 if (plants && plants.length > 0) {
                     list.innerHTML = plants.map(plant => {
                         const icon = plant.name.includes('🌳') ? '🌳' : '🌸';
-                        const cleanName = plant.name.replace('🌳', '').replace('🌸', '').trim();
+                        const cleanName = plant.name.replace(/[🌳🌸]/g, '').trim();
+                        const imageHtml = plant.photo_url
+                            ? `<img src="${plant.photo_url}" alt="${cleanName}">`
+                            : `<div style="opacity: 0.3">${icon}</div>`;
 
                         return `
                             <div class="plant-card" onclick="window.location.href='plant_detail.html?id=${plant.id}'">
-                                <div class="plant-icon">${icon}</div>
-                                <div class="plant-info">
-                                    <div class="plant-name">${cleanName}</div>
-                                    <div class="plant-location">📍 ${plant.lat.toFixed(4)}, ${plant.lon.toFixed(4)}</div>
-                                </div>
-                                <button class="plant-delete" onclick="event.stopPropagation(); handleDelete('${plant.id}')" title="Delete">
-                                    🗑️
+                                <button class="delete-icon" onclick="event.stopPropagation(); window.handleDelete('${plant.id}')">
+                                    <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                    </svg>
                                 </button>
+                                <div class="plant-img-wrapper">
+                                    ${imageHtml}
+                                </div>
+                                <div class="plant-content">
+                                    <div class="plant-name">${cleanName || 'Unnamed Sibling'}</div>
+                                    <div class="plant-meta">
+                                        <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                        </svg>
+                                        ${plant.lat.toFixed(4)}, ${plant.lon.toFixed(4)}
+                                    </div>
+                                    <div class="plant-meta" style="font-size: 11px; opacity: 0.7;">
+                                        PLATFORM: ${plant.type.toUpperCase()}
+                                    </div>
+                                </div>
                             </div>
                         `;
                     }).join('');
                 } else {
                     list.innerHTML = `
-                        <div class="empty-state" style="grid-column: 1/-1;">
-                            <div class="empty-icon">🌱</div>
-                            <p>You haven't planted anything yet.</p>
-                            <button class="btn btn-primary" style="margin-top: 16px;" onclick="window.location.href='index.html'">
-                                Plant Your First Seed
-                            </button>
+                        <div class="loading">
+                            <span style="font-size: 3rem; display: block; margin-bottom: 16px;">🌱</span>
+                            VOID DETECTED. START PLANTING.
                         </div>
                     `;
                 }
             } catch (e) {
-                console.error('Error loading plants:', e);
-                list.innerHTML = '<div class="empty-state"><p>Error loading plants.</p></div>';
+                console.error(e);
+                list.innerHTML = '<div class="loading">CRITICAL DATABASE ERROR</div>';
             }
         }
 
         window.handleDelete = function (id) {
-            if (!confirm('Are you sure you want to remove this plant?')) return;
-            const success = deletePlant(id);
-            if (success) {
-                loadPlants();
-            } else {
-                alert('Error deleting plant');
-            }
+            if (!confirm('EXTERMINATE THIS SPECIES FROM DATABASE?')) return;
+            if (deletePlant(id)) loadPlants();
         };
 
         loadPlants();

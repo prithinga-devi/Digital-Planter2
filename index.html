@@ -472,6 +472,92 @@
             }
         }
 
+        /* Live Status Bar */
+        .live-status-bar {
+            position: absolute;
+            bottom: 40px;
+            left: 110px;
+            background: var(--surface-night);
+            backdrop-filter: var(--glass-blur);
+            border: 1px solid var(--border-glass);
+            border-radius: 12px;
+            padding: 10px 16px;
+            z-index: 50;
+            display: none;
+            flex-direction: column;
+            gap: 4px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            transition: var(--transition-smooth);
+        }
+
+        .live-status-bar.active {
+            display: flex;
+        }
+
+        .live-status-label {
+            font-size: 9px;
+            font-weight: 800;
+            color: var(--accent-glow);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .live-status-value {
+            font-size: 11px;
+            color: var(--text-main);
+            font-family: monospace;
+        }
+
+        /* Live Orbit Button */
+        .live-orbit-btn {
+            position: absolute;
+            bottom: 110px;
+            right: 40px;
+            width: 56px;
+            height: 56px;
+            background: var(--surface-night);
+            backdrop-filter: var(--glass-blur);
+            border: 1px solid var(--border-glass);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-muted);
+            cursor: pointer;
+            z-index: 50;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            transition: var(--transition-smooth);
+        }
+
+        .live-orbit-btn.active {
+            color: var(--accent-glow);
+            border-color: var(--accent-glow);
+            box-shadow: 0 0 20px rgba(144, 238, 144, 0.3);
+        }
+
+        .live-orbit-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .delete-btn-history {
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: rgba(239, 68, 68, 0.1);
+            color: #EF4444;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            border: none;
+        }
+
+        .delete-btn-history:hover {
+            background: #EF4444;
+            color: white;
+        }
+
         /* Permission Alert Modal */
         .permission-modal {
             position: fixed;
@@ -605,6 +691,21 @@
                 </path>
             </svg>
         </button>
+
+        <button id="liveOrbitBtn" class="live-orbit-btn" onclick="window.toggleLiveTracking()"
+            title="Live Orbit Tracking">
+            <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z">
+                </path>
+            </svg>
+        </button>
+
+        <div id="liveStatusBar" class="live-status-bar">
+            <div class="live-status-label">Live Coordinates</div>
+            <div id="liveCoords" class="live-status-value">Searching...</div>
+            <div id="liveAddress" class="live-status-value" style="font-size: 9px; opacity: 0.7;">Unknown Sector</div>
+        </div>
 
         <div id="status-overlay"></div>
     </main>
@@ -742,7 +843,7 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-app.js";
         import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-auth.js";
         import { firebaseConfig } from "./static/js/config.js";
-        import { addPlant, getUserPlants } from "./static/js/dataService.js";
+        import { addPlant, getUserPlants, deletePlant } from "./static/js/dataService.js";
         import { reverseGeocode } from "./static/js/utils.js";
         import { toggleTheme } from "./static/js/theme.js";
 
@@ -758,6 +859,14 @@
                 return { success: true, plant: newPlant };
             } catch (error) {
                 return { success: false, error: error.message };
+            }
+        };
+
+        window.handleDeleteFromHistory = function (id) {
+            if (confirm("TERMINATE THIS RECORD?")) {
+                if (deletePlant(id)) {
+                    loadHistory();
+                }
             }
         };
 
@@ -823,6 +932,9 @@
                                 <div style="font-weight:700">${p.name.replace(/[🌳🌸]/g, '').toUpperCase()}</div>
                                 <div style="font-size:10px; opacity:0.6">${p.address ? p.address.split(',')[0] : 'Remote sector'}</div>
                             </div>
+                            <button class="delete-btn-history" onclick="window.handleDeleteFromHistory('${p.id}')">
+                                &times;
+                            </button>
                         </div>
                     `).join('');
                 } else {
@@ -1025,6 +1137,56 @@
             statusEl.style.color = type === 'error' ? '#F87171' : (type === 'success' ? 'var(--accent-glow)' : '#60A5FA');
             statusEl.style.opacity = '1';
             setTimeout(() => statusEl.style.opacity = '0', 3000);
+        }
+
+        let watchId = null;
+
+        window.toggleLiveTracking = function () {
+            const btn = document.getElementById('liveOrbitBtn');
+            const statusBar = document.getElementById('liveStatusBar');
+
+            if (watchId) {
+                navigator.geolocation.clearWatch(watchId);
+                watchId = null;
+                btn.classList.remove('active');
+                statusBar.classList.remove('active');
+                showStatus('LIVE ORBIT DISABLED', 'info');
+            } else {
+                if (!navigator.geolocation) return;
+                showStatus('INITIALIZING LIVE ORBIT...', 'info');
+                btn.classList.add('active');
+                statusBar.classList.add('active');
+
+                watchId = navigator.geolocation.watchPosition(pos => {
+                    const { latitude, longitude } = pos.coords;
+                    updateLiveLocation(latitude, longitude);
+                }, (err) => {
+                    showStatus('SIGNAL FAILURE', 'error');
+                    window.toggleLiveTracking();
+                }, { enableHighAccuracy: true });
+            }
+        };
+
+        function updateLiveLocation(lat, lon) {
+            document.getElementById('liveCoords').textContent = `${lat.toFixed(5)}, ${lon.toFixed(5)}`;
+
+            // Move map and marker
+            map.setView([lat, lon], 17);
+            if (selectedMarker) map.removeLayer(selectedMarker);
+
+            const liveIcon = L.divIcon({
+                className: 'custom-div-icon',
+                html: `<div style="background-color: var(--accent-glow); width: 14px; height: 14px; border-radius: 50%; box-shadow: 0 0 20px var(--accent-glow); border: 2px solid white;"></div>`,
+                iconSize: [14, 14], iconAnchor: [7, 7]
+            });
+            selectedMarker = L.marker([lat, lon], { icon: liveIcon }).addTo(map);
+
+            // Update status bar address
+            fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`)
+                .then(res => res.json())
+                .then(data => {
+                    document.getElementById('liveAddress').textContent = data.display_name.split(',')[0] || 'Direct Signal';
+                });
         }
 
         function shareSocial(type) {

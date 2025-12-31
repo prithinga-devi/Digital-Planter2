@@ -4,59 +4,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Animated Login / Sign Up Page</title>
+    <title>Google Login - Digital Planter</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
     <style>
-        /* ------------------ COLOR VARIABLES ------------------ */
         :root {
-            /* Green Family for Buttons & Accents */
-            --color-primary-dark: #008000;
-            --color-primary-medium: #036612;
-            --color-primary-light: #068804;
-
-            /* Blue Family for Input Focus (Match Screenshot) */
-            --color-focus-blue: #4b6cb7;
-            --color-focus-glow: rgba(75, 108, 183, 0.5);
-
-            --color-text-dark: #333;
-            --color-text-light: #777;
-            --color-background: #f4f4f4;
+            /* Night Nursery Theme */
+            --bg-night: #0A140F;
+            --surface-night: rgba(18, 30, 24, 0.95);
+            --accent-glow: #90EE90;
+            --text-main: #F0FDF4;
+            --text-muted: #94A3B8;
+            --border-glass: rgba(144, 238, 144, 0.2);
+            --font-main: 'Inter', -apple-system, sans-serif;
         }
 
-        /* ------------------ 1. ANIMATION KEYFRAMES ------------------ */
-        @keyframes slideUp {
-            from {
-                transform: translateY(30px);
-                opacity: 0;
-            }
-
-            to {
-                transform: translateY(0);
-                opacity: 1;
-            }
-        }
-
-        @keyframes pulse {
-            0% {
-                box-shadow: 0 0 0 0 var(--color-focus-glow);
-            }
-
-            70% {
-                box-shadow: 0 0 0 10px rgba(0, 0, 255, 0);
-            }
-
-            100% {
-                box-shadow: 0 0 0 0 rgba(0, 0, 255, 0);
-            }
-        }
-
-        /* ------------------ 2. CORE STYLES ------------------ */
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: 'Arial', sans-serif;
+            font-family: var(--font-main);
         }
 
         body {
@@ -64,274 +32,166 @@
             justify-content: center;
             align-items: center;
             height: 100vh;
-            background-color: var(--color-background);
+            background-color: var(--bg-night);
+            color: var(--text-main);
+            overflow: hidden;
+            position: relative;
         }
 
-        /* Back to Garden Link */
-        .back-link {
+        /* Animated Background Glows */
+        .glow-orb {
             position: absolute;
-            top: 20px;
-            left: 20px;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(144, 238, 144, 0.08) 0%, transparent 70%);
+            border-radius: 50%;
+            z-index: -1;
+            filter: blur(40px);
+        }
+
+        .orb-1 {
+            top: -100px;
+            right: -100px;
+        }
+
+        .orb-2 {
+            bottom: -100px;
+            left: -100px;
+        }
+
+        .back-link,
+        .logout-link {
+            position: absolute;
             text-decoration: none;
-            color: var(--color-primary-dark);
-            font-weight: bold;
-            font-size: 16px;
+            color: var(--text-muted);
+            font-weight: 500;
+            font-size: 14px;
             display: flex;
             align-items: center;
             gap: 8px;
-            z-index: 1000;
-            transition: color 0.3s;
+            transition: all 0.3s;
+            z-index: 10;
+        }
+
+        .back-link {
+            top: 40px;
+            left: 40px;
+        }
+
+        .logout-link {
+            top: 40px;
+            right: 40px;
+            color: #EF4444;
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            padding: 8px 16px;
+            border-radius: 20px;
         }
 
         .back-link:hover {
-            color: var(--color-primary-light);
+            color: var(--accent-glow);
         }
 
-        /* Container Styling */
-        .login-container {
-            background: white;
-            padding: 50px 0;
-            border-radius: 10px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+        .logout-link:hover {
+            background: rgba(239, 68, 68, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .login-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
             width: 100%;
-            max-width: 450px;
-            text-align: left;
-            position: relative;
-            height: auto;
-            animation: slideUp 0.6s ease-out forwards;
-            overflow: hidden;
+            max-width: 440px;
+            padding: 60px 40px;
+            background: var(--surface-night);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border-glass);
+            border-radius: 40px;
+            box-shadow: 0 40px 100px rgba(0, 0, 0, 0.5);
+            animation: fadeIn 1s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        .fixed-title-container {
-            padding: 0 50px;
-            margin-bottom: 30px;
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .user-avatar {
+            font-size: 100px;
+            color: var(--accent-glow);
+            margin-bottom: 24px;
+            filter: drop-shadow(0 0 20px rgba(144, 238, 144, 0.4));
         }
 
         .login-title {
-            font-size: 32px;
-            font-weight: bold;
-            color: var(--color-text-dark);
-            text-transform: uppercase;
-            display: inline-block;
-            border-bottom: 5px solid var(--color-primary-light);
-            padding-bottom: 8px;
-            transition: border-bottom-color 0.5s;
+            font-size: 40px;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 54px;
+            letter-spacing: -0.5px;
         }
 
-        .login-container.active .login-title {
-            border-bottom-color: var(--color-primary-dark);
-        }
-
-        /* --- SLIDING FORM SETUP --- */
-        .forms-wrapper {
+        .google-pill-btn {
+            background-color: #ffffff;
+            color: #111111;
+            border-radius: 100px;
+            padding: 16px 40px;
             display: flex;
-            width: 200%;
-            transition: transform 0.5s ease-in-out;
-        }
-
-        .login-container.active .forms-wrapper {
-            transform: translateX(-50%);
-        }
-
-        .form-panel {
-            width: 50%;
-            flex-shrink: 0;
-            padding: 0 50px;
-        }
-
-        /* ------------------ 3. COMPONENT STYLES ------------------ */
-
-        /* Inputs */
-        .input-group {
-            margin-bottom: 25px;
-        }
-
-        .input-group label {
-            display: block;
-            margin-bottom: 6px;
-            color: var(--color-text-dark);
-            font-size: 15px;
-            font-weight: 500;
-        }
-
-        .input-group input {
-            width: 100%;
-            padding: 14px 20px;
-            border: 1px solid var(--color-text-light);
-            border-radius: 30px;
-            font-size: 16px;
-            outline: none;
-            transition: border-color 0.3s, box-shadow 0.3s;
-        }
-
-        /* BLUE FOCUS STYLE (As per screenshot) */
-        .input-group input:focus {
-            border-color: var(--color-focus-blue);
-            box-shadow: 0 0 8px var(--color-focus-glow);
-        }
-
-        /* Buttons */
-        .btn {
-            width: 100%;
-            padding: 14px;
-            border: none;
-            border-radius: 30px;
-            font-size: 17px;
-            cursor: pointer;
-            font-weight: bold;
-            margin-bottom: 20px;
-            transition: transform 0.2s ease, opacity 0.2s;
-            color: white;
-        }
-
-        .btn:hover {
-            transform: translateY(-3px);
-            opacity: 0.9;
-        }
-
-        /* Green Buttons (As per screenshot/brand) */
-        .btn-primary {
-            background-color: var(--color-primary-medium);
-        }
-
-        .btn-secondary {
-            background-color: var(--color-primary-dark);
-        }
-
-        /* Links */
-        .create-account,
-        .login-prompt {
-            margin-bottom: 15px;
-            text-align: center;
-            font-size: 14px;
-        }
-
-        .create-account a,
-        .login-prompt a {
-            color: var(--color-primary-medium);
-            text-decoration: underline;
-            cursor: pointer;
-            font-weight: bold;
-        }
-
-        /* Social Icons */
-        .social-icons {
-            display: flex;
-            justify-content: center;
-            gap: 20px;
-            margin-top: 30px;
-        }
-
-        .icon {
-            display: flex;
-            justify-content: center;
             align-items: center;
-            width: 40px;
-            height: 40px;
-            background-color: #0b5c06;
-            color: white;
-            border-radius: 50%;
-            text-decoration: none;
-            transition: background-color 0.2s, transform 0.2s;
+            gap: 14px;
+            font-size: 17px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 10px 30px rgba(144, 238, 144, 0.15);
         }
 
-        .icon:hover {
-            background-color: var(--color-primary-light);
-            transform: scale(1.1);
+        .google-pill-btn:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 50px rgba(144, 238, 144, 0.25);
+            background-color: var(--accent-glow);
+        }
+
+        .google-pill-btn:active {
+            transform: translateY(-1px);
+        }
+
+        .google-icon {
+            width: 22px;
+            height: 22px;
         }
     </style>
 </head>
 
 <body>
 
-    <a href="index.html" class="back-link"><i class="fas fa-arrow-left"></i> Back to Garden</a>
+    <div class="glow-orb orb-1"></div>
+    <div class="glow-orb orb-2"></div>
 
-    <div id="main-container" class="login-container">
+    <a href="index.html" class="back-link"><i class="fas fa-arrow-left"></i> Garden View</a>
+    <a href="#" id="logoutActionBtn" class="logout-link" onclick="window.logout(); return false;"><i
+            class="fas fa-sign-out-alt"></i> Logout</a>
 
-        <div class="fixed-title-container">
-            <h1 id="main-title" class="login-title">LOGIN</h1>
+    <div class="login-card">
+        <div class="user-avatar">
+            <i class="fas fa-user-circle"></i>
         </div>
 
-        <div class="forms-wrapper">
+        <h1 class="login-title">Google Login</h1>
 
-            <!-- LOGIN PANEL -->
-            <div id="login-panel" class="form-panel">
-                <form id="login-form">
-                    <div class="input-group">
-                        <label for="login-email">Email</label>
-                        <!-- CORRECTED ID: login-email (was login-username) -->
-                        <input type="email" id="login-email" required>
-                    </div>
-
-                    <div class="input-group">
-                        <label for="login-password">Password</label>
-                        <input type="password" id="login-password" required>
-                    </div>
-
-                    <div class="checkbox-group" style="display:flex; align-items:center; margin-bottom:30px;">
-                        <input type="checkbox" id="remember">
-                        <label for="remember" style="margin:0 0 0 8px;">Remember me?</label>
-                    </div>
-
-                    <button type="submit" class="btn btn-primary">Login</button>
-
-                    <p class="create-account">
-                        Don't have an account? <a id="show-signup-link">Create one.</a>
-                    </p>
-                </form>
-
-                <button id="google-login-btn" class="btn btn-primary">
-                    Login with Google
-                </button>
-
-                <div class="social-icons">
-                    <a href="#" class="icon"><i class="fab fa-instagram"></i></a>
-                    <a href="#" class="icon"><i class="fab fa-linkedin-in"></i></a>
-                    <a href="#" class="icon"><i class="fab fa-whatsapp"></i></a>
-                </div>
-            </div>
-
-            <!-- SIGN UP PANEL -->
-            <div id="signup-panel" class="form-panel">
-                <form id="signup-form">
-                    <div class="input-group">
-                        <label for="signup-email">Email</label>
-                        <input type="email" id="signup-email" required>
-                    </div>
-
-                    <div class="input-group">
-                        <label for="signup-username">Username</label>
-                        <input type="text" id="signup-username" required>
-                    </div>
-
-                    <div class="input-group">
-                        <label for="signup-password">Password</label>
-                        <input type="password" id="signup-password" required>
-                    </div>
-
-                    <div class="input-group">
-                        <label for="signup-confirm-password">Confirm Password</label>
-                        <input type="password" id="signup-confirm-password" required>
-                    </div>
-
-                    <button type="submit" class="btn btn-secondary">Sign Up</button>
-
-                    <p class="login-prompt">
-                        Already have an account? <a id="show-login-link">Back to Sign In</a>
-                    </p>
-                </form>
-
-                <button id="google-signup-btn" class="btn btn-primary">
-                    Sign up with Google
-                </button>
-
-                <div class="social-icons">
-                    <a href="#" class="icon"><i class="fab fa-instagram"></i></a>
-                    <a href="#" class="icon"><i class="fab fa-linkedin-in"></i></a>
-                    <a href="#" class="icon"><i class="fab fa-whatsapp"></i></a>
-                </div>
-            </div>
-        </div>
+        <button id="google-login-btn" class="google-pill-btn">
+            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" class="google-icon" alt="G">
+            Sign in with Google
+        </button>
     </div>
 
     <!-- MODULE IMPORT -->

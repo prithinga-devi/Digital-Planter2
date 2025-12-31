@@ -138,19 +138,15 @@ window.logout = async () => {
 // --- Auth State Observer for index.html UI ---
 onAuthStateChanged(auth, (user) => {
     const logoutBtn = document.getElementById('logoutBtn');
-    const userInitial = document.getElementById('userInitial');
-    const loginPlaceholder = document.getElementById('loginPlaceholder');
+    const loginBtn = document.getElementById('loginBtn');
 
     if (user) {
         if (logoutBtn) logoutBtn.style.display = 'flex';
-        if (userInitial) {
-            userInitial.textContent = user.displayName ? user.displayName.charAt(0).toUpperCase() : (user.email ? user.email.charAt(0).toUpperCase() : 'U');
-            userInitial.style.display = 'block';
-        }
-        if (loginPlaceholder) loginPlaceholder.style.display = 'none';
+        if (loginBtn) loginBtn.style.display = 'none';
+        console.log("UI: Authenticated state active");
     } else {
         if (logoutBtn) logoutBtn.style.display = 'none';
-        if (userInitial) userInitial.style.display = 'none';
-        if (loginPlaceholder) loginPlaceholder.style.display = 'block';
+        if (loginBtn) loginBtn.style.display = 'flex';
+        console.log("UI: Deauthenticated state active");
     }
 });

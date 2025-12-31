@@ -63,11 +63,11 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            padding: 48px 0;
+            padding: 48px 0 64px;
             justify-content: space-between;
             z-index: 100;
             width: 88px;
-            gap: 40px;
+            gap: 48px;
         }
 
         .rail-bottom {
@@ -634,18 +634,23 @@
 <body>
     <!-- Zone A: Command Rail -->
     <nav class="command-rail">
-        <div class="rail-top">
-            <div class="avatar-container" id="userAvatarRail" title="Profile/Login">
-                <svg id="loginPlaceholder" width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
-                </svg>
-                <span id="userInitial" style="display: none;">U</span>
+        <div class="rail-top" style="display: flex; flex-direction: column; align-items: center; gap: 16px;">
+            <!-- Login Button (Vibrant Glow) -->
+            <div id="loginBtn" class="nav-item" title="Login" onclick="window.location.href='login.html'"
+                style="width: 56px; height: 56px; font-size: 26px; border: 2px solid var(--accent-glow); color: var(--accent-glow); box-shadow: 0 0 15px rgba(144, 238, 144, 0.2); background: rgba(144, 238, 144, 0.05); border-radius: 18px;">
+                <i class='bx bx-log-in'></i>
+            </div>
+            <!-- Logout Button (Vibrant Red Glow) -->
+            <div id="logoutBtn" class="nav-item" title="Logout" onclick="window.logout()"
+                style="display: none; width: 56px; height: 56px; font-size: 26px; border: 2px solid #EF4444; color: #EF4444; box-shadow: 0 0 15px rgba(239, 68, 68, 0.2); background: rgba(239, 68, 68, 0.05); border-radius: 18px;">
+                <i class='bx bx-log-out'></i>
             </div>
         </div>
 
         <div class="nav-icons">
-            <div id="nav-map" class="nav-item active" title="World Orbit" onclick="showPanel('map')">🌱</div>
+            <div id="nav-map" class="nav-item active" title="World Orbit" onclick="showPanel('map')">
+                <i class='bx bx-globe'></i>
+            </div>
             <div id="nav-loc" class="nav-item" title="Sync Location" onclick="showPanel('loc'); getMyLocation()">
                 <i class='bx bx-map-pin'></i>
             </div>
@@ -659,9 +664,6 @@
         </div>
 
         <div class="rail-bottom">
-            <div class="nav-item" id="logoutBtn" title="Deauthorize" onclick="window.logout()">
-                <i class='bx bx-log-out'></i>
-            </div>
             <div class="theme-switch" id="themeToggle" onclick="window.toggleTheme()">
                 <i class='bx bx-moon'></i>
             </div>
@@ -1210,6 +1212,7 @@
 
         initMap();
     </script>
+    <script type="module" src="static/js/main.js"></script>
     <script>
         // Boxicons initialized automatically
     </script>

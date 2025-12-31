@@ -29,7 +29,7 @@ function applyTheme(theme) {
     // Update toggle button icon
     const toggleBtn = document.getElementById('themeToggle');
     if (toggleBtn) {
-        toggleBtn.textContent = theme === 'dark' ? '☀️' : '🌙';
+        toggleBtn.innerHTML = theme === 'dark' ? "<i class='bx bx-sun'></i>" : "<i class='bx bx-moon'></i>";
         toggleBtn.title = theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Night Nursery';
     }
 }

@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-app.js";
-import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithEmailAndPassword, createUserWithEmailAndPassword, updateProfile } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-auth.js";
+import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithEmailAndPassword, createUserWithEmailAndPassword, updateProfile, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-auth.js";
 import { firebaseConfig } from "./config.js";
 
 // Initialize Firebase
@@ -9,7 +9,6 @@ auth.languageCode = 'en';
 const provider = new GoogleAuthProvider();
 
 // --- UI LOGIC (Sliding Panels) ---
-// (Keeping your existing UI logic for the sliding panels)
 const mainContainer = document.getElementById('main-container');
 const mainTitle = document.getElementById('main-title');
 const showSignupLink = document.getElementById('show-signup-link');
@@ -44,13 +43,11 @@ if (showLoginLink) {
 
 // 1. Google Sign-In
 const handleGoogleAuth = (e) => {
-    e.preventDefault(); // Prevent form submission if inside a form
-
+    e.preventDefault();
     signInWithPopup(auth, provider)
         .then((result) => {
             const user = result.user;
             console.log("Google Sign-In Success:", user.email);
-            // Redirect to the logged-in area
             window.location.href = "logged.html";
         }).catch((error) => {
             console.error("Google Auth Error:", error);
@@ -74,7 +71,6 @@ if (loginForm) {
 
         signInWithEmailAndPassword(auth, email, password)
             .then((userCredential) => {
-                // Signed in 
                 const user = userCredential.user;
                 console.log("Login Success:", user.email);
                 window.location.href = "logged.html";
@@ -83,13 +79,8 @@ if (loginForm) {
                 const errorCode = error.code;
                 const errorMessage = error.message;
                 console.error("Login Error:", errorCode, errorMessage);
-
                 if (errorCode === 'auth/invalid-login-credentials' || errorCode === 'auth/wrong-password' || errorCode === 'auth/user-not-found') {
-                    alert("Invalid email or password. Please check your credentials or create a new account.");
-                } else if (errorCode === 'auth/operation-not-allowed') {
-                    alert("Error: Email/Password login is not enabled in Firebase Console. Please enable it.");
-                } else if (errorCode === 'auth/too-many-requests') {
-                    alert("Too many failed attempts. Please try again later.");
+                    alert("Invalid email or password.");
                 } else {
                     alert("Login failed: " + errorMessage);
                 }
@@ -105,7 +96,7 @@ if (signupForm) {
         const email = document.getElementById('signup-email').value;
         const password = document.getElementById('signup-password').value;
         const confirmPassword = document.getElementById('signup-confirm-password').value;
-        const username = document.getElementById('signup-username').value; // Get username
+        const username = document.getElementById('signup-username').value;
 
         if (password !== confirmPassword) {
             alert("Passwords do not match!");
@@ -114,39 +105,52 @@ if (signupForm) {
 
         createUserWithEmailAndPassword(auth, email, password)
             .then((userCredential) => {
-                // Signed up 
                 const user = userCredential.user;
-                console.log("Signup Success:", user.email);
-
-                // Update Profile with Username
-                updateProfile(user, {
-                    displayName: username
-                }).then(() => {
-                    console.log("Profile updated with username:", username);
-                    alert("Account created! Redirecting...");
+                updateProfile(user, { displayName: username }).then(() => {
+                    console.log("Profile updated");
                     window.location.href = "logged.html";
                 }).catch((error) => {
                     console.error("Error updating profile:", error);
-                    // Still redirect even if profile update fails, but warn
-                    alert("Account created but failed to set username. Redirecting...");
                     window.location.href = "logged.html";
                 });
-
             })
             .catch((error) => {
                 const errorCode = error.code;
                 const errorMessage = error.message;
-
-                if (errorCode === 'auth/email-already-in-use') {
-                    alert("This email is already registered. Please Login instead.");
-                    // Automatically switch to login panel
-                    switchToLogin();
-                } else if (errorCode === 'auth/operation-not-allowed') {
-                    alert("Error: Email/Password sign-in is not enabled in Firebase Console. Please enable it.");
-                } else {
-                    console.error("Signup Error:", errorCode, errorMessage);
-                    alert("Sign up failed: " + errorMessage);
-                }
+                console.error("Signup Error:", errorCode, errorMessage);
+                alert("Sign up failed: " + errorMessage);
             });
     });
 }
+
+// --- Global Logout ---
+window.logout = async () => {
+    try {
+        await auth.signOut();
+        console.log("Logged out successfully");
+        window.location.reload();
+    } catch (error) {
+        console.error("Logout Error:", error);
+        alert("Logout failed: " + error.message);
+    }
+};
+
+// --- Auth State Observer for index.html UI ---
+onAuthStateChanged(auth, (user) => {
+    const logoutBtn = document.getElementById('logoutBtn');
+    const userInitial = document.getElementById('userInitial');
+    const loginPlaceholder = document.getElementById('loginPlaceholder');
+
+    if (user) {
+        if (logoutBtn) logoutBtn.style.display = 'flex';
+        if (userInitial) {
+            userInitial.textContent = user.displayName ? user.displayName.charAt(0).toUpperCase() : (user.email ? user.email.charAt(0).toUpperCase() : 'U');
+            userInitial.style.display = 'block';
+        }
+        if (loginPlaceholder) loginPlaceholder.style.display = 'none';
+    } else {
+        if (logoutBtn) logoutBtn.style.display = 'none';
+        if (userInitial) userInitial.style.display = 'none';
+        if (loginPlaceholder) loginPlaceholder.style.display = 'block';
+    }
+});

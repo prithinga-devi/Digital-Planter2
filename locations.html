@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Garden - Digital Planter</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
     <style>
         :root {
             /* Night Nursery Theme (Primary) */
@@ -288,7 +289,9 @@
         </main>
     </div>
 
-    <div class="theme-toggle-btn" onclick="window.toggleTheme()" id="themeToggle">🌙</div>
+    <div class="theme-toggle-btn" onclick="window.toggleTheme()" id="themeToggle">
+        <i class='bx bx-moon'></i>
+    </div>
 
     <script type="module">
         import { getUserPlants, deletePlant } from './static/js/dataService.js';

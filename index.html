@@ -64,7 +64,7 @@
             flex-direction: column;
             align-items: center;
             padding: 48px 0 64px;
-            justify-content: space-between;
+            justify-content: flex-start;
             z-index: 100;
             width: 88px;
             gap: 48px;
@@ -410,6 +410,13 @@
             border-radius: 10px;
         }
 
+        .rail-top {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 16px;
+        }
+
         @media (max-width: 768px) {
             body {
                 grid-template-columns: 1fr;
@@ -421,15 +428,25 @@
                 width: 100%;
                 height: 80px;
                 flex-direction: row;
-                padding: 0 40px;
+                padding: 0 24px;
                 border-right: none;
                 border-top: 1px solid var(--border-glass);
+                justify-content: flex-start;
+                gap: 24px;
+            }
+
+            .rail-top {
+                flex-direction: row;
+                gap: 0;
+                margin-right: 0;
             }
 
             .nav-icons {
                 flex-direction: row;
-                width: 100%;
-                justify-content: space-around;
+                width: auto;
+                flex: 1;
+                justify-content: space-between;
+                gap: 0;
             }
 
             .avatar-container,
@@ -474,12 +491,7 @@
             box-shadow: 0 0 25px rgba(144, 238, 144, 0.4);
         }
 
-        @media (max-width: 768px) {
-            .locate-btn {
-                bottom: 100px;
-                right: 20px;
-            }
-        }
+
 
         /* Live Status Bar */
         .live-status-bar {
@@ -628,13 +640,39 @@
         .btn-secondary:hover {
             background: rgba(255, 255, 255, 0.1);
         }
+
+        @media (max-width: 768px) {
+            .command-rail {
+                padding: 0 12px;
+                gap: 12px;
+            }
+
+            .nav-item,
+            .theme-switch,
+            #loginBtn {
+                width: 42px !important;
+                height: 42px !important;
+                font-size: 20px !important;
+                border-radius: 12px !important;
+            }
+
+            .locate-btn {
+                bottom: 100px;
+                right: 20px;
+            }
+
+            .live-orbit-btn {
+                bottom: 170px;
+                right: 20px;
+            }
+        }
     </style>
 </head>
 
 <body>
     <!-- Zone A: Command Rail -->
     <nav class="command-rail">
-        <div class="rail-top" style="display: flex; flex-direction: column; align-items: center; gap: 16px;">
+        <div class="rail-top">
             <!-- Login Button (Vibrant Glow) -->
             <div id="loginBtn" class="nav-item" title="Login" onclick="window.location.href='login.html'"
                 style="width: 56px; height: 56px; font-size: 26px; border: 2px solid var(--accent-glow); color: var(--accent-glow); box-shadow: 0 0 15px rgba(144, 238, 144, 0.2); background: rgba(144, 238, 144, 0.05); border-radius: 18px;">
@@ -661,10 +699,8 @@
             <div id="nav-settings" class="nav-item" title="System Settings" onclick="openPlantTray()">
                 <i class='bx bx-cog'></i>
             </div>
-        </div>
-
-        <div class="rail-bottom">
-            <div class="theme-switch" id="themeToggle" onclick="window.toggleTheme()">
+            <!-- Moved Theme Switch -->
+            <div class="theme-switch" id="themeToggle" onclick="window.toggleTheme()" title="Toggle Theme">
                 <i class='bx bx-moon'></i>
             </div>
         </div>
@@ -891,37 +927,16 @@
             }
         };
 
-        const avatarBtn = document.getElementById('userAvatarRail');
-        avatarBtn.onclick = async () => {
-            if (!auth.currentUser) {
-                try {
-                    await signInWithPopup(auth, provider);
-                } catch (e) {
-                    console.error(e);
-                }
-            } else {
-                window.location.href = 'locations.html';
-            }
-        };
-
         onAuthStateChanged(auth, (user) => {
-            const initial = document.getElementById('userInitial');
-            const placeholder = document.getElementById('loginPlaceholder');
+            const loginBtn = document.getElementById('loginBtn');
             const logoutBtn = document.getElementById('logoutBtn');
-            const avatar = document.getElementById('userAvatarRail');
 
             if (user) {
-                let letter = user.displayName ? user.displayName.charAt(0) : (user.email ? user.email.charAt(0) : 'U');
-                initial.textContent = letter.toUpperCase();
-                initial.style.display = 'block';
-                placeholder.style.display = 'none';
-                logoutBtn.style.display = 'flex';
-                avatar.title = user.displayName || user.email;
+                if (loginBtn) loginBtn.style.display = 'none';
+                if (logoutBtn) logoutBtn.style.display = 'flex';
             } else {
-                initial.style.display = 'none';
-                placeholder.style.display = 'block';
-                logoutBtn.style.display = 'none';
-                avatar.title = "Click to Connect";
+                if (loginBtn) loginBtn.style.display = 'flex';
+                if (logoutBtn) logoutBtn.style.display = 'none';
             }
             loadHistory();
         });

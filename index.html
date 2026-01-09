@@ -882,9 +882,7 @@
     <!-- Login Modal Removed (Using /login page instead) -->
 
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-app.js";
-        import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-auth.js";
-        import { firebaseConfig } from "./static/js/config.js";
+        import { auth } from "./static/js/config.js";
         import { addPlant, getUserPlants, deletePlant } from "./static/js/dataService.js";
         import { reverseGeocode } from "./static/js/utils.js";
         import { toggleTheme } from "./static/js/theme.js";
@@ -894,27 +892,26 @@
         window.plantWithLocalStorage = async function (name, type, lat, lon, photoDataUrl) {
             try {
                 const geoData = await reverseGeocode(lat, lon);
-                const newPlant = addPlant({
+                const newPlant = await addPlant({
                     name, type, lat, lon, photo_url: photoDataUrl,
                     address: geoData.address, landmarks: geoData.landmarks
                 });
                 return { success: true, plant: newPlant };
             } catch (error) {
+                console.error("Planting error:", error);
                 return { success: false, error: error.message };
             }
         };
 
-        window.handleDeleteFromHistory = function (id) {
+        window.handleDeleteFromHistory = async function (id) {
             if (confirm("TERMINATE THIS RECORD?")) {
-                if (deletePlant(id)) {
-                    loadHistory();
+                if (await deletePlant(id)) {
+                    await loadHistory();
                 }
             }
         };
 
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const provider = new GoogleAuthProvider();
+        import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-auth.js";
 
         window.logout = async () => {
             if (confirm("TERMINATE SESSION?")) {
@@ -941,10 +938,10 @@
             loadHistory();
         });
 
-        function loadHistory() {
+        async function loadHistory() {
             const container = document.getElementById('recentHistory');
             try {
-                const plants = getUserPlants().slice(-3).reverse();
+                const plants = (await getUserPlants()).slice(-3).reverse();
                 if (plants.length > 0) {
                     container.innerHTML = plants.map(p => `
                         <div class="history-item">

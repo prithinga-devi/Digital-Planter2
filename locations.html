@@ -298,12 +298,12 @@
         import { toggleTheme } from './static/js/theme.js';
         window.toggleTheme = toggleTheme;
 
-        function loadPlants() {
+        async function loadPlants() {
             const list = document.getElementById('plantList');
             const count = document.getElementById('plantCount');
 
             try {
-                const plants = getUserPlants();
+                const plants = await getUserPlants();
                 count.textContent = plants.length;
 
                 if (plants && plants.length > 0) {
@@ -354,12 +354,14 @@
             }
         }
 
-        window.handleDelete = function (id) {
+        window.handleDelete = async function (id) {
             if (!confirm('EXTERMINATE THIS SPECIES FROM DATABASE?')) return;
-            if (deletePlant(id)) loadPlants();
+            if (await deletePlant(id)) await loadPlants();
         };
 
-        loadPlants();
+        (async () => {
+            await loadPlants();
+        })();
     </script>
 </body>
 

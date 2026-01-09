@@ -246,9 +246,9 @@
         const plantId = urlParams.get('id');
         let map;
 
-        function initView() {
+        async function initView() {
             if (!plantId) { window.location.href = 'locations.html'; return; }
-            const plant = getPlant(plantId);
+            const plant = await getPlant(plantId);
             if (!plant) { window.location.href = 'locations.html'; return; }
 
             document.getElementById('plantName').textContent = plant.name.replace(/[🌳🌸]/g, '').toUpperCase();
@@ -280,20 +280,22 @@
             setTimeout(() => map.invalidateSize(), 200);
         }
 
-        window.handleDeletePlant = function () {
+        window.handleDeletePlant = async function () {
             if (confirm('CONFIRM PERMANENT SPECIMEN PURGE?')) {
-                if (deletePlant(plantId)) window.location.href = 'locations.html';
+                if (await deletePlant(plantId)) window.location.href = 'locations.html';
             }
         };
 
-        window.sharePlant = function () {
-            const plant = getPlant(plantId);
+        window.sharePlant = async function () {
+            const plant = await getPlant(plantId);
             const posts = generateSocialPost(plant);
             navigator.clipboard.writeText(posts.templates.short);
             alert('DATA PACKET COPIED TO CLIPBOARD');
         };
 
-        initView();
+        (async () => {
+            await initView();
+        })();
     </script>
 </body>
 

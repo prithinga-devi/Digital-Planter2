@@ -875,7 +875,7 @@
                 </div>
             </div>
 
-            <button class="btn-deploy" id="deployBtn" onclick="submitPlant()">DEPLOY BIOMASS</button>
+            <button type="button" class="btn-deploy" id="deployBtn" onclick="submitPlant()">DEPLOY BIOMASS</button>
         </div>
     </aside>
 
@@ -889,6 +889,7 @@
 
         // Global Bridges
         window.toggleTheme = toggleTheme;
+        window.auth = auth;
         window.plantWithLocalStorage = async function (name, type, lat, lon, photoDataUrl) {
             try {
                 const geoData = await reverseGeocode(lat, lon);
@@ -1115,8 +1116,13 @@
             const btn = document.getElementById('deployBtn');
             const photoInput = document.getElementById('photoInput');
 
-            if (!name || !selectedLat) {
+            if (!name || selectedLat == null || selectedLon == null) {
                 showStatus('DATA INCOMPLETE', 'error');
+                return;
+            }
+
+            if (!window.auth?.currentUser) {
+                showStatus('LOGIN REQUIRED', 'error');
                 return;
             }
 
@@ -1134,21 +1140,27 @@
                 }
 
                 const result = await window.plantWithLocalStorage(name, type, selectedLat, selectedLon, photoDataUrl);
-                if (result.success) {
-                    showStatus('MISSION SUCCESSFUL', 'success');
-                    setTimeout(() => {
-                        closePlantTray();
-                        window.loadHistory();
-                        // Reset
-                        document.getElementById('plantName').value = '';
-                        document.getElementById('photoPreview').style.display = 'none';
-                        document.getElementById('uploadPlaceholder').style.display = 'flex';
-                        if (selectedMarker) map.removeLayer(selectedMarker);
-                        btn.disabled = false; btn.textContent = 'DEPLOY BIOMASS';
-                    }, 1000);
+                if (!result.success) {
+                    showStatus(result.error || 'DEPLOYMENT FAILED', 'error');
+                    btn.disabled = false;
+                    btn.textContent = 'RETRY DEPLOYMENT';
+                    return;
                 }
+
+                showStatus('MISSION SUCCESSFUL', 'success');
+                setTimeout(() => {
+                    closePlantTray();
+                    window.loadHistory();
+                    // Reset
+                    document.getElementById('plantName').value = '';
+                    document.getElementById('photoPreview').style.display = 'none';
+                    document.getElementById('uploadPlaceholder').style.display = 'flex';
+                    if (selectedMarker) map.removeLayer(selectedMarker);
+                    btn.disabled = false; btn.textContent = 'DEPLOY BIOMASS';
+                }, 1000);
             } catch (e) { showStatus('CRITICAL FAILURE', 'error'); btn.disabled = false; btn.textContent = 'RETRY DEPLOYMENT'; }
         }
+        window.submitPlant = submitPlant;
 
         function showStatus(msg, type) {
             statusEl.textContent = msg;

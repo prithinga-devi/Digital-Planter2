@@ -296,6 +296,8 @@
     <script type="module">
         import { getUserPlants, deletePlant } from './static/js/dataService.js';
         import { toggleTheme } from './static/js/theme.js';
+        import { auth } from './static/js/config.js';
+        import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.1.0/firebase-auth.js';
         window.toggleTheme = toggleTheme;
 
         async function loadPlants() {
@@ -359,9 +361,18 @@
             if (await deletePlant(id)) await loadPlants();
         };
 
-        (async () => {
-            await loadPlants();
-        })();
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                await loadPlants();
+            } else {
+                document.getElementById('plantList').innerHTML = `
+                    <div class="loading">
+                        SIGN IN TO ACCESS YOUR GARDEN.
+                    </div>
+                `;
+                document.getElementById('plantCount').textContent = '0';
+            }
+        });
     </script>
 </body>
 
